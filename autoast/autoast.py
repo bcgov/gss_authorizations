@@ -463,7 +463,7 @@ class AST_FACTORY:
             print(f"Batch Ast: Starting job {index +1}")
 
             # if ast condition is queued or requeued, run the job
-            if job.get(self.AST_CONDITION_COLUMN) == ['Queued']: #NOTE Add QUEUED AFTER TESTING***
+            if job.get(self.AST_CONDITION_COLUMN) == 'Queued': #NOTE Add QUEUED AFTER TESTING***
                 # JOB_TIMEOUT = 60 * 60 * 6  # 6 hours
                 print(f"Batch Ast: Job {index + 1} is {self.AST_CONDITION_COLUMN}. Starting job.")
                 self.logger.info(f"Batch Ast: Job {index + 1} is Queued or Requeued. Starting job.")
