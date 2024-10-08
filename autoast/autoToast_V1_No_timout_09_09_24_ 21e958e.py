@@ -23,14 +23,20 @@ import geopandas
 import arcpy
 import datetime
 import logging
-
+import subprocess
+import multiprocessing as mp
+from tqdm import tqdm
+import sys
+import time
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = '2_wmus.xlsx'
+excel_file = '2024_10_07.xlsx'
 
 # Define the job timeout in seconds (6 hours)
 JOB_TIMEOUT = 6 * 60 * 60
 
+# Number of CPUS to use for multiprocessing
+NUM_CPUS = mp.cpu_count()
 ###############################################################################################################################################################################
 # Set up logging
 
@@ -71,7 +77,7 @@ def setup_logging():
 
 
 
-def import_ast():
+def import_ast(logger):
     # Get the toolbox path from environment variables
     ast_toolbox = os.getenv('TOOLBOX') # File path 
 
@@ -104,7 +110,7 @@ def import_ast():
 # Set up the database connection
 #
 ###############################################################################################################################################################################
-def setup_bcgw():
+def setup_bcgw(logger):
     # Get the secret file containing the database credentials
     SECRET_FILE = os.getenv('SECRET_FILE')
 
@@ -195,6 +201,7 @@ class AST_FACTORY:
     }
     
     AST_CONDITION_COLUMN = 'ast_condition'
+    DONT_OVERWRITE_OUTPUTS = 'dont_overwrite_outputs'
     AST_SCRIPT = ''
     job_index = None  # Initialize job_index as a global variable
     
@@ -203,17 +210,21 @@ class AST_FACTORY:
         self.user_cred = db_pass
         self.queuefile = queuefile
         self.jobs = []
+        self.logger = logger or logging.getLogger(__name__)
+        self.current_path = current_path  
 
     def load_jobs(self):
         '''
-        load jobs will check for the exisitance of the queuefile, if it exists it will load the jobs from the queuefile. Checking if they 
-        are Complete and if not, it will add them to the jobs list as Queued
+        load jobs will check for the existence of the queuefile, if it exists it will load the jobs from the queuefile. Checking if they 
+        are Complete and if not, it will add them to the jobs  as Queued
         '''
-        
-        global job_index
-
-        print("Loading jobs")
-        logger.info("Loading jobs")
+        # NOTE pass job index into load jobs function
+        #global job_index
+        self.logger.info("##########################################################################################################################")
+        self.logger.info("#")
+        self.logger.info("Loading Jobs...")
+        self.logger.info("#")
+        self.logger.info("##########################################################################################################################")
 
         # Initialize the jobs list to store jobs
         self.jobs = []

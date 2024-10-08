@@ -32,8 +32,8 @@ import time
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
 excel_file = '2_wmus.xlsx'
 
-# Define the job timeout in seconds (e.g., 6 hours)
-JOB_TIMEOUT = 60  # Adjust as needed
+# Define the job timeout in seconds (6 hours)
+JOB_TIMEOUT = 6 * 60 * 60
 
 # Number of CPUS to use for multiprocessing
 NUM_CPUS = mp.cpu_count()
