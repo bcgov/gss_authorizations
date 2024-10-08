@@ -302,6 +302,8 @@ class AST_FACTORY:
                             job[self.AST_CONDITION_COLUMN] = ast_condition
                             self.logger.info(f"Load Jobs: Job {index - 1} is None, blank or not complete. Assigning {ast_condition} to job condition")
 
+
+
                             # Immediately update the Excel sheet with the new condition
                             try:
                                 self.add_job_result(index - 1, ast_condition)
