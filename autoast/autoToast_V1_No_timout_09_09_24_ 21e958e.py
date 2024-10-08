@@ -33,7 +33,7 @@ import time
 excel_file = '2_wmus.xlsx'
 
 # Define the job timeout in seconds (6 hours)
-JOB_TIMEOUT = 60
+# JOB_TIMEOUT = 60
 
 # Number of CPUS to use for multiprocessing
 NUM_CPUS = mp.cpu_count()
@@ -563,7 +563,7 @@ class AST_FACTORY:
         import time
         
         
-        JOB_TIMEOUT = 60*60*6  # 6 hours 
+        JOB_TIMEOUT = 60  # 6 hours 
         self.logger.info(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
         print(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
 
