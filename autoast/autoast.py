@@ -524,7 +524,7 @@ class AST_FACTORY:
         import time
         
         
-        JOB_TIMEOUT = 60*6*6  # 6 hours 
+        JOB_TIMEOUT = 60*60*6  # 6 hours 
         self.logger.info(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
         print(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
 
@@ -735,135 +735,123 @@ class AST_FACTORY:
 # This is the newer version of the re_load_failed_jobs function from the autoastv2Script unedited
 # NOTE ** Reload failed jobs may be able to be incorporated into load failed jobs to tighten up the script
     def re_load_failed_jobs_V2(self):
-                '''
-                re load failed jobs will check for the existence of the queuefile, if it exists it will load the jobs from the queuefile. Checking if they 
-                are Failed and if they are, will change Dont Overwrite Outputs to True and add them to the jobs list as Queued
-                '''
-                self.logger.info("##########################################################################################################################")
-                self.logger.info("#")
-                self.logger.info("Reloading Failed Jobs V2.....")
-                self.logger.info("#")
-                self.logger.info("##########################################################################################################################")
+        '''
+        re load failed jobs will check for the existence of the queuefile, if it exists it will load the jobs from the queuefile. Checking if they 
+        are Failed and if they are, will change Dont Overwrite Outputs to True and add them to the jobs list as Queued
+        '''
+        self.logger.info("##########################################################################################################################")
+        self.logger.info("#")
+        self.logger.info("Reloading Failed Jobs V2.....")
+        self.logger.info("#")
+        self.logger.info("##########################################################################################################################")
 
 
-                # Initialize the jobs list to store jobs
-                self.jobs = []
+        # Initialize the jobs list to store jobs
+        self.jobs = []
 
-                # Check if the queue file exists
-                assert os.path.exists(self.queuefile), "Queue file does not exist"
-                if os.path.exists(self.queuefile):
+        # Check if the queue file exists
+        assert os.path.exists(self.queuefile), "Queue file does not exist"
+        if os.path.exists(self.queuefile):
 
-                    try:
-                        # Open the Excel workbook and select the correct sheet
-                        wb = load_workbook(filename=self.queuefile)
-                        ws = wb[self.XLSX_SHEET_NAME]
-                        print(f'Workbook loaded is {wb}')   
-                        self.logger.info(f'Reload Failed Jobs: Workbook loaded is {wb}') 
-                        
-                        # Get the header (column names) from the first row of the sheet
-                        header = list([row for row in ws.iter_rows(min_row=1, max_col=None, values_only=True)][0])
-                        # print(f"Header is {header}")
-                        self.logger.info(f"Reload Failed Jobs: Header is {header}")
-                        
-                        # Read all the data rows (starting from the second row to skip the header)
-                        data = []
-                        for row in ws.iter_rows(min_row=2, max_col=None, values_only=True):
-                            print(f'Row is {row}')
-                            self.logger.info(f'Reload Failed Jobs: Row is {row}')
-                            data.append(row)
+            try:
+                # Open the Excel workbook and select the correct sheet
+                wb = load_workbook(filename=self.queuefile)
+                ws = wb[self.XLSX_SHEET_NAME]
+                print(f'Workbook loaded is {wb}')   
+                self.logger.info(f'Reload Failed Jobs: Workbook loaded is {wb}') 
+                
+                # Get the header (column names) from the first row of the sheet
+                header = list([row for row in ws.iter_rows(min_row=1, max_col=None, values_only=True)][0])
+                # print(f"Header is {header}")
+                self.logger.info(f"Reload Failed Jobs: Header is {header}")
+                
+                # Read all the data rows (starting from the second row to skip the header)
+                data = []
+                for row in ws.iter_rows(min_row=2, max_col=None, values_only=True):
+                    print(f'Row is {row}')
+                    self.logger.info(f'Reload Failed Jobs: Row is {row}')
+                    data.append(row)
 
-                        # Iterate over each row of data; enumerate to keep track of the row number in Excel
-                        for index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
-                            
-                            # print(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
-                            self.logger.info(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
-                            # Skip any completely blank rows
-                            if all((value is None or str(value).strip() == '') for value in row_data):
-                                print(f"Re Load Failed Jobs: Skipping blank row at index {index -1 }")
-                                self.logger.info(f"Re Load Failed Jobs: Skipping blank row at index {index -1}")
-                                continue  # Skip this row entirely
+                # Iterate over each row of data; enumerate to keep track of the row number in Excel
+                for index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
+                    
+                    # print(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
+                    self.logger.info(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
+                    # Skip any completely blank rows
+                    if all((value is None or str(value).strip() == '') for value in row_data):
+                        print(f"Re Load Failed Jobs: Skipping blank row at index {index -1 }")
+                        self.logger.info(f"Re Load Failed Jobs: Skipping blank row at index {index -1}")
+                        continue  # Skip this row entirely
 
-                            # Initialize a dictionary to store the job's parameters
-                            job = {}
-                            self.logger.info('Re Load Failed Jobs: Creating job emptry dictionary')
-                            ast_condition = None  # Initialize the ast_condition for the current row
+                    # Initialize a dictionary to store the job's parameters
+                    job = {}
+                    self.logger.info('Re Load Failed Jobs: Creating job emptry dictionary')
+                    ast_condition = None  # Initialize the ast_condition for the current row
 
-                            # Loop through each column header and corresponding value in the current row
-                            for key, value in zip(header, row_data):
-                                # Check if the key corresponds to the ast_condition column
-                                # If the key isn't empty and IS "ast_condition" then assign the value to ast_condition (if the value isn't None or empty)
-                                # NOTE Seems like some reduncancy here We determine if key is not none twice
-                                if key is not None and key.lower() == self.AST_CONDITION_COLUMN.lower():
-                                    ast_condition = value if value is not None else ""
-                                    print(f"Re Load Failed Jobs: key value in zip - AST Condition is {ast_condition}")
+                    # Loop through each column header and corresponding value in the current row
+                    for key, value in zip(header, row_data):
+                        # Check if the key corresponds to the ast_condition column
+                        if key is not None and key.lower() == self.AST_CONDITION_COLUMN.lower():
+                            ast_condition = value if value is not None else ""
+                            print(f"Re Load Failed Jobs: key value in zip - AST Condition is {ast_condition}")
 
-                                # Assign an empty string to any None values
-                                value = "" if value is None else value
+                        # Assign an empty string to any None values
+                        value = "" if value is None else value
 
-                                # Assign the value to the job dictionary if the key is not None #NOTE Redundant check?
-                                if key is not None:
-                                    logger.info(f"Re Load Failed Jobs: Assigning value {value} to job dictionary")
-                                    print(f"Re Load Failed Jobs: Assigning value {value} to job dictionary")
-                                    job[key] = value
+                        # Assign the value to the job dictionary if the key is not None
+                        if key is not None:
+                            logger.info(f"Re Load Failed Jobs: Assigning value {value} to job dictionary")
+                            print(f"Re Load Failed Jobs: Assigning value {value} to job dictionary")
+                            job[key] = value
 
-                            # Skip if marked as "COMPLETE"
-                            if ast_condition.upper() == 'COMPLETE':
-                                print(f"Re Load Failed Jobs: Skipping job {index - 1} as it is marked COMPLETE.")
-                                self.logger.info(f"Re Load Failed Jobs: Inside for loop: Skipping job {index - 1} as it is marked COMPLETE.")
-                                continue  
+                    # Skip if marked as "COMPLETE"
+                    if ast_condition.upper() == 'COMPLETE':
+                        print(f"Re Load Failed Jobs: Skipping job {index - 1} as it is marked COMPLETE.")
+                        self.logger.info(f"Re Load Failed Jobs: Inside for loop: Skipping job {index - 1} as it is marked COMPLETE.")
+                        continue  
 
-                        # Check if the ast_condition is Failed
-                            elif ast_condition.upper() == 'FAILED': 
-                                ast_condition.upper == 'FAILED'
-                                
-                                # Assign 'Requeued' to the ast_condition and update the job dictionary
-                                ast_condition = 'Requeued'
-                                print(f"Re Load Failed Jobs: Job is marked as Failed, re-assigning ast condition to {ast_condition}")
-                                logger.info(f"Re Load Failed Jobs: Job is marked as Failed, re-assigning ast condition to {ast_condition}")
-                                
-                                # Assign requeued to the job dictionary
-                                job[self.AST_CONDITION_COLUMN] = ast_condition
-                                
-                                # Change the dont overwrite outputs to True
-                                # job[self.DONT_OVERWRITE_OUTPUTS] = "True"
-                                print("*************************************")
-                                print("*************************************")
-                                print("*************************************")
-                                print("*************************************")
-                                self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {index - 1} Dont Overwrite output now set to True")
+                    # **Only requeue jobs that are marked as 'FAILED'**
+                    elif ast_condition.upper() == 'FAILED':
+                        ast_condition = 'Requeued'
+                        print(f"Re Load Failed Jobs: Job is marked as Failed, re-assigning ast condition to {ast_condition}")
+                        logger.info(f"Re Load Failed Jobs: Job is marked as Failed, re-assigning ast condition to {ast_condition}")
 
-                                # Immediately update the Excel sheet with the new condition
-                                try:
-                                    self.add_job_result(index - 1, ast_condition)
-                                    self.logger.info(f"***Re Load Failed Jobs: Added job condition '{ast_condition}' for job {index - 1} to jobs list***")
-                                except Exception as e:
-                                    print(f"Error updating Excel sheet at row {index}: {e}")
-                                    self.logger.error(f"Re Load Failed Jobs: Error updating Excel sheet at row {index}: {e}")
-                                continue
-                            
-                            #NOTE #DELETE THIS?
-                            # Classify the input type for the job
-                            try:
-                                self.classify_input_type(job)
-                                print(f"Re Load Failed Jobs: Classifying input type for job {index - 1}")
-                                self.logger.info(f"Re Load Failed Jobs: Inside for loop: Calling classify_input_type() Classifying input type for job {index - 1}")
-                            except Exception as e:
-                                print(f"Error classifying input type for job {job}: {e}")
-                                self.logger.error(f"Error classifying input type for job {job}: {e}")
+                        # Assign 'Requeued' to the job dictionary
+                        job[self.AST_CONDITION_COLUMN] = ast_condition
 
-                            # Add the job to the jobs list after all checks and processing
-                            self.jobs.append(job)
-                            print(f"Re Load Failed Jobs: Job Condition is  ({ast_condition}), adding job: {index - 1} to jobs list")
-                            self.logger.info(f"Re Load Failed Jobs: Job Condition is ({ast_condition}), adding job: {index - 1} to jobs list")
+                        # Change the 'dont_overwrite_outputs' to True
+                        # job[self.DONT_OVERWRITE_OUTPUTS] = "True"
+                        print("*************************************")
+                        print("*************************************")
+                        print("*************************************")
+                        print("*************************************")
+                        self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {index - 1} Dont Overwrite output now set to True")
 
-                    except FileNotFoundError as e:
-                        print(f"Error: Queue file not found - {e}")
-                        self.logger.error(f"Re Load Failed Jobs Error: Queue file not found - {e}")
-                    except Exception as e:
-                        print(f"Unexpected error loading jobs: {e}")
-                        self.logger.error(f"Re Load Failed Jobs Unexpected error loading jobs: {e}")
+                        # Immediately update the Excel sheet with the new condition
+                        try:
+                            self.add_job_result(index - 1, ast_condition)
+                            self.logger.info(f"***Re Load Failed Jobs: Added job condition '{ast_condition}' for job {index - 1} to jobs list***")
+                        except Exception as e:
+                            print(f"Error updating Excel sheet at row {index}: {e}")
+                            self.logger.error(f"Re Load Failed Jobs: Error updating Excel sheet at row {index}: {e}")
 
-                    return self.jobs
+                        # Add the job to the jobs list
+                        self.jobs.append(job)
+                    else:
+                        # Skip other jobs
+                        print(f"Re Load Failed Jobs: Skipping job {index - 1} as it is not marked FAILED.")
+                        self.logger.info(f"Re Load Failed Jobs: Skipping job {index - 1} as it is not marked FAILED.")
+                        continue
+
+            except FileNotFoundError as e:
+                print(f"Error: Queue file not found - {e}")
+                self.logger.error(f"Re Load Failed Jobs Error: Queue file not found - {e}")
+            except Exception as e:
+                print(f"Unexpected error loading jobs: {e}")
+                self.logger.error(f"Re Load Failed Jobs Unexpected error loading jobs: {e}")
+
+        return self.jobs
+
 
 
 
