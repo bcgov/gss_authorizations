@@ -244,22 +244,26 @@ class AST_FACTORY:
                 # Read all the data rows (starting from the second row to skip the header)
                 data = [row for row in ws.iter_rows(min_row=2, max_col=None, values_only=True)]
 
+                # Initialize a dictionary to store the job's parameters
+                job = {}
+                self.logger.info('Load Jobs - Creating empty dictionary')
+                ast_condition = None  # Initialize the ast_condition for the current row
+
+            
+                
                 # Iterate over each row of data; enumerate to keep track of the row number in Excel
-                for row_index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
+                for job_index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
 
                     # Skip any completely blank rows
                     if all((value is None or str(value).strip() == '') for value in row_data):
-                        print(f"Load Jobs - Skipping blank row at index {row_index} **Should be {row_index - 1}?")
-                        self.logger.info(f"Load Jobs - Skipping blank row at index {row_index} ******Should be {row_index - 1}?")
+                        print(f"Load Jobs - Skipping blank row at job index ({job_index}) **Should be {job_index - 1}?")
+                        self.logger.info(f"Load Jobs - Skipping blank row at index ({job_index}) ******Should be {job_index - 1} Y/N?")
                         continue  # Skip this row entirely
 
-                    # Initialize a dictionary to store the job's parameters
-                    job = {}
-                    ast_condition = None  # Initialize the ast_condition for the current row
 
                     # Loop through each column header and corresponding value in the current row
                     for key, value in zip(header, row_data):
-                        # Check if the key corresponds to the ast_condition column
+                        # If the key isn't empty and equals "ast_condition", assign the value to ast_condition
                         if key is not None and key.lower() == self.AST_CONDITION_COLUMN.lower():
                             ast_condition = value if value is not None else ""
 
@@ -269,45 +273,46 @@ class AST_FACTORY:
                         # Assign the value to the job dictionary if the key is not None
                         if key is not None:
                             job[key] = value
+                            self.logger.info(f"Load Jobs - Job {job_index} - Key: {key}, Value: {value}")
 
                     # Skip if marked as "COMPLETE"
                     if ast_condition.upper() == 'COMPLETE':
-                        print(f"Skipping job {row_index - 1} as it is marked COMPLETE.")
-                        self.logger.info(f"Load Jobs - Skipping job {row_index - 1} as it is marked COMPLETE.")
-                        continue  # Skip this job as it's already marked as COMPLETE
+                        print(f"Skipping job {job_index} as it is marked COMPLETE.")
+                        self.logger.info(f"Load Jobs - Skipping job {job_index} as it is marked COMPLETE.")
+                        # continue  # Skip this job as it's already marked as COMPLETE
 
                     # Check if the ast_condition is None, empty, or not 'COMPLETE'
                     if ast_condition is None or ast_condition.strip() == '' or ast_condition.upper() != 'COMPLETE':
                         # Assign 'Queued' to the ast_condition and update the job dictionary
                         ast_condition = 'Queued'
                         job[self.AST_CONDITION_COLUMN] = ast_condition
-                        self.logger.info(f"Load Jobs - Job {row_index - 1} is {ast_condition}")
+                        self.logger.info(f"Load Jobs - (Queued assigned to Job ({job_index}) is ({ast_condition})")
 
                         # Immediately update the Excel sheet with the new condition
                         try:
-                            self.add_job_result(row_index - 1, ast_condition)
-                            self.logger.info(f"Load Jobs - Added job condition '{ast_condition}' for job {row_index - 1} to jobs list")
+                            self.add_job_result(job_index, ast_condition)
+                            self.logger.info(f"Load Jobs - Added job condition '{ast_condition}' for job {job_index} to jobs list")
                         except Exception as e:
-                            print(f"Error updating Excel sheet at row {row_index}: {e}")
-                            self.logger.error(f"Load Jobs - Error updating Excel sheet at row {row_index}: {e}")
+                            print(f"Error updating Excel sheet at row {job_index}: {e}")
+                            self.logger.error(f"Load Jobs - Error updating Excel sheet at row {job_index}: {e}")
                             continue
 
                     # Classify the input type for the job
                     try:
-                        self.classify_input_type(job)
-                        print(f"Load Jobs - Calling Classifying input type for job {row_index - 1}")
-                        self.logger.info(f"Load Jobs - Calling Classifying input type for job {row_index - 1}")
+                        # self.classify_input_type(job)
+                        print(f"Load Jobs - Calling Classifying input type for job {job_index}")
+                        self.logger.info(f"Load Jobs - Calling Classifying input type for job {job_index}")
                     except Exception as e:
                         print(f"Error classifying input type for job {job}: {e}")
                         self.logger.error(f"Error classifying input type for job {job}: {e}")
 
                     # Add the job to the jobs list after all checks and processing
                     self.jobs.append(job)
-                    print(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {row_index - 1} to jobs list")
-                    self.logger.info(f"Load Jobs - ob Condition is not Complete ({ast_condition}), adding job: {row_index - 1} to jobs list")
+                    print(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index} to jobs list")
+                    self.logger.info(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index} to jobs list")
 
                     print(f"Load Jobs - Job dictionary is {job}")
-                    self.logger.info(f"Load Jobs - Job dictionary is {job}")
+                    self.logger.info(f"Load Jobs - Job {job_index} dictionary is {job}")
 
             except FileNotFoundError as e:
                 print(f"Error: Queue file not found - {e}")
@@ -332,37 +337,37 @@ class AST_FACTORY:
         # file_name, extension = os.path.basename(input).split()
 
         
-        for job in self.jobs:                # Check if there is a file path in Feature Layer
-            if job.get('feature_layer'):
-                print(f'Feature layer found: {job["feature_layer"]}')
-                self.logger.info(f'Classifying Input Type - Feature layer found: {job["feature_layer"]}')
-                feature_layer_path = job['feature_layer']
-                print(f"Processing feature layer: {feature_layer_path}")
-                self.logger.info(f"Classifying Input Type - Processing feature layer: {feature_layer_path}")
+        # for job in self.jobs:                # Check if there is a file path in Feature Layer
+        if self.jobs.get('feature_layer'):
+            print(f'Feature layer found: {self.jobs["feature_layer"]}')
+            self.logger.info(f'Classifying Input Type for job {job_index} - Feature layer found: {self.jobs["feature_layer"]}')
+            feature_layer_path = self.jobs['feature_layer']
+            print(f"Processing feature layer: {feature_layer_path}")
+            self.logger.info(f"Classifying Input Type - Processing feature layer: {feature_layer_path}")
 
-                # If the feature layer is a KML, build the AOI from the KML
-                if feature_layer_path.lower().endswith('.kml'):
-                    print(f'Kml found, building AOI from KML')
-                    self.logger.info(f'Classifying Input Type - Kml found, building AOI from KML')
-                    # Call the build_aoi_from_kml method and then place the result in the job dictionary under feature layer
-                    job['feature_layer'] = self.build_aoi_from_kml(feature_layer_path)
-                
-                # If the feature layer is a SHP, build the AOI from the SHP
-                elif feature_layer_path.lower().endswith('.shp'):
-                    # If the file number has been entered in the file number field, run the FW setup script
-                    if job.get('file_number'):
-                        print(f"File number found for job {job_index}, running FW setup on shapefile: {feature_layer_path}")
-                        self.logger.info(f"Classifying Input Type - File number found for job {job_index}, running FW setup on shapefile: {feature_layer_path}")
-                        # Call the build_aoi_from_shp method and then place the result in the job dictionary under feature layer
-                        new_feature_layer_path = self.build_aoi_from_shp(job, feature_layer_path)
-                        job['feature_layer'] = new_feature_layer_path
-                    else:
-                        print(f'No FW File Number provided for the shapefile, loading original shapefile path')
-                        self.logger.info(f'Classifying Input Type - No FW File Number provided for the shapefile, loading original shapefile path')
+            # If the feature layer is a KML, build the AOI from the KML
+            if feature_layer_path.lower().endswith('.kml'):
+                print(f'Kml found, building AOI from KML')
+                self.logger.info(f'Classifying Input Type - Kml found, building AOI from KML')
+                # Call the build_aoi_from_kml method and then place the result in the job dictionary under feature layer
+                self.jobs['feature_layer'] = self.build_aoi_from_kml(feature_layer_path)
+            
+            # If the feature layer is a SHP, build the AOI from the SHP
+            elif feature_layer_path.lower().endswith('.shp'):
+                # If the file number has been entered in the file number field, run the FW setup script
+                if self.jobs.get('file_number'):
+                    print(f"File number found for job {job_index}, running FW setup on shapefile: {feature_layer_path}")
+                    self.logger.info(f"Classifying Input Type - File number found for job {job_index}, running FW setup on shapefile: {feature_layer_path}")
+                    # Call the build_aoi_from_shp method and then place the result in the job dictionary under feature layer
+                    new_feature_layer_path = self.build_aoi_from_shp(self.jobs, feature_layer_path)
+                    self.jobs[s+'feature_layer'] = new_feature_layer_path
                 else:
-                    print(f"Unsupported feature layer format: {feature_layer_path}")
-                    self.logger.warning(f"Classifying Input Type - Job number {job_index} Unsupported feature layer format: {feature_layer_path} - Adding Job Result 'Failed'")
-                    self.add_job_result(job_index, 'Failed')
+                    print(f'No FW File Number provided for the shapefile, loading original shapefile path')
+                    self.logger.info(f'Classifying Input Type - No FW File Number provided for the shapefile, loading original shapefile path')
+            else:
+                print(f"Unsupported feature layer format: {feature_layer_path}")
+                self.logger.warning(f"Classifying Input Type - Job number {job_index} Unsupported feature layer format: {feature_layer_path} - Adding Job Result 'Failed'")
+                self.add_job_result(job_index, 'Failed')
 
             
     
@@ -465,34 +470,41 @@ class AST_FACTORY:
             ws = wb[self.XLSX_SHEET_NAME]
 
             # Read the header index for the ast_condition column
-            header = list([row for row in ws.iter_rows(min_row=1, max_col=None, values_only=True)][0])
+            header = next(ws.iter_rows(min_row=1, max_row=1, values_only=True))
             
-            # Find the ast condition colum and assign it to the correct index
+            # Check if 'AST CONDITION COLUMN' exists in the header
+            if self.AST_CONDITION_COLUMN not in header:
+                raise ValueError(f"'{self.AST_CONDITION_COLUMN}' column not found in the spreadsheet.")
+            
+            # Check if 'DONT OVERWRITE OUTPUTS' exists in the header
+            if self.DONT_OVERWRITE_OUTPUTS not in header:
+                raise ValueError(f"'{self.DONT_OVERWRITE_OUTPUTS}' column not found in the spreadsheet.")
+            
+            # Find the ast condition column and assign it to the correct index
             ast_condition_index = header.index(self.AST_CONDITION_COLUMN) + 1  # +1 because Excel columns are 1-indexed
 
             # Find the dont_overwrite_outputs column and assign it to the correct index
             dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
-            excel_row_index = job_index + 2  #NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
+            excel_row_index = job_index + 1  # NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
 
             # Check if the row is blank before updating
             row_values = [ws.cell(row=excel_row_index, column=col).value for col in range(1, len(header) + 1)]
             if all(value is None or str(value).strip() == '' for value in row_values):
                 print(f"Row {excel_row_index} is blank, not updating.")
-                self.logger.info(f"Job {job_index} / Row {excel_row_index} *** SHOULD THIS BE - 1? is blank, not updating.")
+                self.logger.info(f"Add_Job_Result -Job {job_index} / Row {excel_row_index} *** SHOULD THIS BE - 1? is blank, not updating.")
                 return  # Do not update if the row is blank
 
             # Update the condition for the specific job
             ws.cell(row=excel_row_index, column=ast_condition_index, value=condition)
 
-            # if the condition in AST_CONDITION_COLUMN is 'Requeud" then go to the dont overwrite output column and change false to true
+            # if the condition in AST_CONDITION_COLUMN is 'Requeued" then go to the dont overwrite output column and change false to true
             if condition == 'Requeued':
                 print(f"Add Job Result - Job {job_index} failed, updating condition to 'Requeued'.")
                 self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
                 ws.cell(row=excel_row_index, column=dont_overwrite_outputs_index, value="True")
                 self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
-            
             
             # Save the workbook with the updated condition
             self.logger.info(f"Add Job Result - Updated Job {job_index} with condition '{condition}'.")
@@ -505,17 +517,21 @@ class AST_FACTORY:
             print(f"Error: Queue file not found - {e}")
             self.logger.error(f"Error: Queue file not found - {e}")
 
+        except ValueError as e:
+            print(f"Error: {e}")
+            self.logger.error(f"Error: {e}")
+
         except IndexError as e:
             print(f"Error: Index out of range when accessing row {excel_row_index} - {e}")
             self.logger.error(f"Error: Index out of range when accessing row {excel_row_index} - {e}")
 
         except PermissionError as e:
             print(f"Error: Permission denied when trying to access the Excel file - {e}")
-            logger.error(f"Error: Permission denied when trying to access the Excel file - {e}")
+            self.logger.error(f"Error: Permission denied when trying to access the Excel file - {e}")
 
         except Exception as e:
             print(f"Unexpected error while adding job result: {e}")
-            logger.error(f"Unexpected error while adding job result: {e}")
+            self.logger.error(f"Unexpected error while adding job result: {e}")
 
 
     def batch_ast(self):
@@ -607,24 +623,24 @@ class AST_FACTORY:
         logger.info("Re Batching Failed AST")        
         logger.info("***************************************************************************************************************************")
         print(f"Number of failed jobs: {len(self.jobs)}")
-        logger.info(f"Number of failed jobs: {len(self.jobs)}")
+        logger.info(f"Rebatch Failed AST - Number of failed jobs: {len(self.jobs)}")
         
         # iterate through the jobs and run the start_ast_tb function on each row of the excel sheet
         for job in self.jobs:
             try:
                 print(f"Starting job {counter}")
-                logger.info(f"Starting job {counter}")
+                logger.info(f"Rebatching Failed AST - Starting job {counter}")
                 
                 # Start the Ast Tool
                 self.start_ast_tb([job])
                 print(f"Job {counter} COMPLETE")
-                logger.info(f"Job {counter} COMPLETE")
+                logger.info(f"Rebatching Failed AST - Job {counter} COMPLETE")
                 self.add_job_result(job_index, 'COMPLETE')
 
             except Exception as e:
                 # Log the exception and the job that caused it
                 print(f"Error encountered with job {counter}: {e}")
-                logger.error(f"Error encountered with job {counter}: {e}")
+                logger.error(f"Rebatching Failed AST - Error encountered with job {counter}: {e}")
                 self.add_job_result(job_index, 'Failed')
             finally:
                 counter += 1
@@ -659,13 +675,13 @@ class AST_FACTORY:
             data = [row for row in ws.iter_rows(min_row=2, max_col=None, values_only=True)]
 
             # Iterate over each row of data; enumerate to keep track of the row number in Excel
-            for row_index, row_data in enumerate(data, start=1):  # Start from 2 to account for Excel header
+            for job_index, row_data in enumerate(data, start=1):  # Start from 2 to account for Excel header
 
                 # Skip any completely blank rows
                 # Skip any completely blank rows
                 if all((value is None or str(value).strip() == '') for value in row_data):
-                    print(f"Skipping blank row at index {row_index}")
-                    logger.info(f"Skipping blank row at index {row_index}")
+                    print(f"Skipping blank row at index {job_index}")
+                    logger.info(f"Re Load Failed Jobs - Skipping blank row at index {job_index}")
                     continue
 
 
@@ -698,44 +714,44 @@ class AST_FACTORY:
 
                     # Immediately update the Excel sheet with the new condition
                     try:
-                        self.add_job_result(row_index - 2, ast_condition)  
+                        self.add_job_result(job_index - 2, ast_condition)  
                     except Exception as e:
-                        print(f"Error updating Excel sheet at row {row_index}: {e}")
-                        logger.error(f"Error updating Excel sheet at row {row_index}: {e}")
+                        print(f"Error updating Excel sheet at row {job_index}: {e}")
+                        logger.error(f"Re Load Failed Jobs - Error updating Excel sheet at row {job_index}: {e}")
                         continue
                     
                 # Immediately update the Excel sheet with the new condition
                     try:
-                        self.add_job_result(row_index - 2, ast_condition)  
+                        self.add_job_result(job_index - 2, ast_condition)  
                     except Exception as e:
-                        print(f"Error updating Excel sheet at row {row_index}: {e}")
-                        logger.error(f"Error updating Excel sheet at row {row_index}: {e}")
+                        print(f"Error updating Excel sheet at row {job_index}: {e}")
+                        logger.error(f"Re Load Failed Jobs - Error updating Excel sheet at row {job_index}: {e}")
                         continue  
 
                 # Add the job to the jobs list
                 self.jobs.append(job)
-                print(f"Job Condition is Queued', adding job: {row_index} to jobs list")
-                logger.info(f"Job Condition is 'Queued', adding job: {row_index} to jobs list")
+                print(f"Job Condition is Queued', adding job: {job_index} to jobs list")
+                logger.info(f"Re Load Failed Jobs - Job Condition is 'Queued', adding job: {job_index} to jobs list")
 
                 print(f"Job dictionary is {job}")
-                logger.info(f"Job dictionary is {job}")
+                logger.info(f"Re Load Failed Jobs - Job {job_index} dictionary is {job}")
 
             # Classify input types for all loaded jobs
             print("Classifying input types for failed jobs")
-            logger.info("Classifying input types for failed jobs")
+            logger.info("Re Load Failed Jobs - Classifying input types for failed jobs")
             for job in self.jobs:
                 try:
                     self.classify_input_type(job)
                 except Exception as e:
                     print(f"Error classifying input type for failed job {job}: {e}")
-                    logger.error(f"Error classifying input type for failed job {job}: {e}")
+                    logger.error(f"Re Load Failed Jobs - Error classifying input type for failed job {job}: {e}")
 
         except FileNotFoundError as e:
             print(f"Error: Queue file not found - {e}")
-            logger.error(f"Error: Queue file not found - {e}")
+            logger.error(f"Re Load Failed Jobs - Error: Queue file not found - {e}")
         except Exception as e:
             print(f"Unexpected error loading jobs: {e}")
-            logger.error(f"Unexpected error loading jobs: {e}")
+            logger.error(f"Re Load Failed Jobs - Unexpected error loading jobs: {e}")
 
         return self.jobs
 
@@ -858,10 +874,6 @@ class AST_FACTORY:
                 self.logger.error(f"Re Load Failed Jobs Unexpected error loading jobs: {e}")
 
         return self.jobs
-
-
-
-
 
     def create_new_queuefile(self):
         '''write a new queuefile with preset header'''
