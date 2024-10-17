@@ -260,8 +260,8 @@ class AST_FACTORY:
 
                     # Skip any completely blank rows
                     if all((value is None or str(value).strip() == '') for value in row_data):
-                        print(f"Load Jobs - Skipping blank row at job index ({job_index}) **Should be {job_index - 1}?")
-                        self.logger.info(f"Load Jobs - Skipping blank row at index ({job_index}) ******Should be {job_index - 1} Y/N?")
+                        print(f"Load Jobs - Skipping blank row at job index ({job_index -1 }) **Should be {job_index - 1}?")
+                        self.logger.info(f"Load Jobs - Skipping blank row at index ({job_index -1}) ******Should be {job_index - 1} Y/N?")
                         continue  # Skip this row entirely
 
 
@@ -277,12 +277,12 @@ class AST_FACTORY:
                         # Assign the value to the job dictionary if the key is not None
                         if key is not None:
                             job[key] = value
-                            self.logger.info(f"Load Jobs - Job {job_index} - Key: {key}, Value: {value}")
+                            self.logger.info(f"Load Jobs - Job {job_index - 1} - Key: {key}, Value: {value}")
 
                     # Skip if marked as "COMPLETE"
                     if ast_condition.upper() == 'COMPLETE':
-                        print(f"Skipping job {job_index} as it is marked COMPLETE.")
-                        self.logger.info(f"Load Jobs - Skipping job {job_index} as it is marked COMPLETE.")
+                        print(f"Skipping job {job_index - 1} as it is marked COMPLETE.")
+                        self.logger.info(f"Load Jobs - Skipping job {job_index - 1} as it is marked COMPLETE.")
                         # continue  # Skip this job as it's already marked as COMPLETE
 
                     # Check if the ast_condition is None, empty, or not 'COMPLETE'
@@ -290,33 +290,33 @@ class AST_FACTORY:
                         # Assign 'Queued' to the ast_condition and update the job dictionary
                         ast_condition = 'Queued'
                         job[self.AST_CONDITION_COLUMN] = ast_condition
-                        self.logger.info(f"Load Jobs - (Queued assigned to Job ({job_index}) is ({ast_condition})")
+                        self.logger.info(f"Load Jobs - (Queued assigned to Job ({job_index - 1}) is ({ast_condition})")
 
                         # Immediately update the Excel sheet with the new condition
                         try:
-                            self.add_job_result(job_index, ast_condition)
-                            self.logger.info(f"Load Jobs - Added job condition '{ast_condition}' for job {job_index} to jobs list")
+                            self.add_job_result(job_index - 1, ast_condition)
+                            self.logger.info(f"Load Jobs - Added job condition '{ast_condition}' for job {job_index -1} to jobs list")
                         except Exception as e:
-                            print(f"Error updating Excel sheet at row {job_index}: {e}")
-                            self.logger.error(f"Load Jobs - Error updating Excel sheet at row {job_index}: {e}")
+                            print(f"Error updating Excel sheet at row {job_index - 1}: {e}")
+                            self.logger.error(f"Load Jobs - Error updating Excel sheet at row {job_index - 1}: {e}")
                             continue
 
                     # Classify the input type for the job
                     try:
                         # self.classify_input_type(job)
-                        print(f"Load Jobs - Calling Classifying input type for job {job_index}")
-                        self.logger.info(f"Load Jobs - Calling Classifying input type for job {job_index}")
+                        print(f"Load Jobs - Calling Classifying input type for job {job_index - 1}")
+                        self.logger.info(f"Load Jobs - Calling Classifying input type for job {job_index - 1}")
                     except Exception as e:
                         print(f"Error classifying input type for job {job}: {e}")
                         self.logger.error(f"Error classifying input type for job {job}: {e}")
 
                     # Add the job to the jobs list after all checks and processing
                     self.jobs.append(job)
-                    print(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index} to jobs list")
-                    self.logger.info(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index} to jobs list")
+                    print(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
+                    self.logger.info(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
 
                     print(f"Load Jobs - Job dictionary is {job}")
-                    self.logger.info(f"Load Jobs - Job {job_index} dictionary is {job}")
+                    self.logger.info(f"Load Jobs - Job {job_index - 1} dictionary is {job}")
 
             except FileNotFoundError as e:
                 print(f"Error: Queue file not found - {e}")
@@ -499,7 +499,7 @@ class AST_FACTORY:
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
             excel_row_index = job_index + 2  # NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
-            self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index}")
+            self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index +1}")
             
             # Check if the row is blank before updating
             row_values = [ws.cell(row=excel_row_index, column=col).value for col in range(1, len(header) + 1)]
@@ -552,14 +552,14 @@ class AST_FACTORY:
         '''
         self.logger.info("##########################################################################################################################")
         self.logger.info("#")
-        self.logger.info("batch_ast()_Batching Jobs with Multiprocessing...")
+        self.logger.info("Batch AST: Batching Jobs with Multiprocessing...")
         self.logger.info("#")
         self.logger.info("##########################################################################################################################")
         
         import time
         
         
-        JOB_TIMEOUT = 60*60*6  # 6 hours 
+        JOB_TIMEOUT = 3600  # 1 hour 
         self.logger.info(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
         print(f"Batch Ast: Job Timeout set to {JOB_TIMEOUT} seconds")
 
@@ -573,7 +573,7 @@ class AST_FACTORY:
             print(f"Batch Ast: Starting job {index +1} Job ({job})")
 
             # if ast condition is queued or requeued, run the job
-            if job.get(self.AST_CONDITION_COLUMN) == 'Queued': #NOTE Add QUEUED AFTER TESTING***
+            if job.get(self.AST_CONDITION_COLUMN) in ['Queued', 'Requeued']: #NOTE Add QUEUED AFTER TESTING***
                 
 
                 print(f"Batch Ast: Job {index + 1} is {self.AST_CONDITION_COLUMN}. Starting job.")
@@ -589,18 +589,18 @@ class AST_FACTORY:
                 
             #DELETE - JUST PUT IN FOR TESTING
             # NOTE These two if statements should be able to be made more efficient, Perhaps with an OR statement
-            if job.get(self.AST_CONDITION_COLUMN) == ['Requeued']:
-                # JOB_TIMEOUT = 60 * 60 * 6  # 6 hours
+            # if job.get(self.AST_CONDITION_COLUMN) == ['Requeued']:
+            #     # JOB_TIMEOUT = 60 * 60 * 6  # 6 hours
                 
-                print(f"Batch Ast: Job {index + 1} is {self.AST_CONDITION_COLUMN}. Starting job......")
-                self.logger.info(f"Batch Ast: Job {index + 1} is Requeued. Starting job......")
+            #     print(f"Batch Ast: Job {index + 1} is {self.AST_CONDITION_COLUMN}. Starting job......")
+            #     self.logger.info(f"Batch Ast: Job {index + 1} is Requeued. Starting job......")
                 
-                # Start each job in a separate process
-                p = mp.Process(target=process_job_mp, args=(self, job, index, self.current_path, return_dict))
-                processes.append((p, index))
-                p.start()
-                self.logger.info(f"Batch Ast: ReQueued Job.....Multiproccessing started......")
-                print(f"Batch Ast: Requeued Job....Multiproccessing started......")
+            #     # Start each job in a separate process
+            #     p = mp.Process(target=process_job_mp, args=(self, job, index, self.current_path, return_dict))
+            #     processes.append((p, index))
+            #     p.start()
+            #     self.logger.info(f"Batch Ast: ReQueued Job.....Multiproccessing started......")
+            #     print(f"Batch Ast: Requeued Job....Multiproccessing started......")
 
         # Monitor and enforce timeouts
         for p, index in processes:
@@ -656,116 +656,6 @@ class AST_FACTORY:
                 self.add_job_result(job_index, 'Failed')
             finally:
                 counter += 1
-
-
-# This is the original reload failed jobs from autoast v1 that hasnt been implemented or tested
-    def re_load_failed_jobs_V1(self):
-        global job_index
-
-        '''
-        re load failed jobs will check for the existence of the queuefile, if it exists it will load the jobs from the queuefile. Checking if they 
-        are Failed and if they are, will change Dont Overwrite Outputs to True and add them to the jobs list as Queued
-        '''
-        self.logger.info("##########################################################################################################################")
-        self.logger.info("#")
-        self.logger.info("Reloading Failed Jobs..")
-        self.logger.info("#")
-        self.logger.info("##########################################################################################################################")
-
-        # Initialize the jobs list to store jobs
-        self.jobs = []
-    
-        try:
-            # Open the Excel workbook and select the correct sheet
-            wb = load_workbook(filename=self.queuefile)
-            ws = wb[self.XLSX_SHEET_NAME]
-            
-            # Get the header (column names) from the first row of the sheet
-            header = list([row for row in ws.iter_rows(min_row=1, max_col=None, values_only=True)][0])
-            
-            # Read all the data rows (starting from the second row to skip the header)
-            data = [row for row in ws.iter_rows(min_row=2, max_col=None, values_only=True)]
-
-            # Iterate over each row of data; enumerate to keep track of the row number in Excel
-            for job_index, row_data in enumerate(data, start=1):  # Start from 2 to account for Excel header
-
-                # Skip any completely blank rows
-                # Skip any completely blank rows
-                if all((value is None or str(value).strip() == '') for value in row_data):
-                    print(f"Skipping blank row at index {job_index}")
-                    logger.info(f"Re Load Failed Jobs - Skipping blank row at index {job_index}")
-                    continue
-
-
-                # Initialize a dictionary to store the job's parameters
-                job = {}
-                self.logger.info('Re Load Failed Jobs: Creating job emptry dictionary')
-                ast_condition = None  # Initialize the ast_condition for the current row
-
-                # Loop through each column header and corresponding value in the current row
-                for key, value in zip(header, row_data):
-                    # Check if the key corresponds to the ast_condition column
-                    if key is not None and key.lower() == self.AST_CONDITION_COLUMN.lower():
-                        if value == 'Failed':
-                            # If the value exists, assign it to ast_condition
-                            ast_condition = value
-                            job[key] = value
-
-
-                    # Assign the value to the job dictionary if the key is not None
-                    # if key is not None:
-                    #     print(f"Re running job value is {value}")
-                    #     logger.info(f"Re running job value is {value}")
-                    #     job[key] = value
-
-                # Check if the ast_condition is None, empty, or not 'COMPLETE'
-                if ast_condition is value:
-                    # Assign 'Queued' to the ast_condition and update the job dictionary
-                    ast_condition = 'Queued'
-                    job[self.AST_CONDITION_COLUMN] = ast_condition
-
-                    # Immediately update the Excel sheet with the new condition
-                    try:
-                        self.add_job_result(job_index - 2, ast_condition)  
-                    except Exception as e:
-                        print(f"Error updating Excel sheet at row {job_index}: {e}")
-                        logger.error(f"Re Load Failed Jobs - Error updating Excel sheet at row {job_index}: {e}")
-                        continue
-                    
-                # Immediately update the Excel sheet with the new condition
-                    try:
-                        self.add_job_result(job_index - 2, ast_condition)  
-                    except Exception as e:
-                        print(f"Error updating Excel sheet at row {job_index}: {e}")
-                        logger.error(f"Re Load Failed Jobs - Error updating Excel sheet at row {job_index}: {e}")
-                        continue  
-
-                # Add the job to the jobs list
-                self.jobs.append(job)
-                print(f"Job Condition is Queued', adding job: {job_index} to jobs list")
-                logger.info(f"Re Load Failed Jobs - Job Condition is 'Queued', adding job: {job_index} to jobs list")
-
-                print(f"Job dictionary is {job}")
-                logger.info(f"Re Load Failed Jobs - Job {job_index} dictionary is {job}")
-
-            # Classify input types for all loaded jobs
-            print("Classifying input types for failed jobs")
-            logger.info("Re Load Failed Jobs - Classifying input types for failed jobs")
-            for job in self.jobs:
-                try:
-                    self.classify_input_type(job)
-                except Exception as e:
-                    print(f"Error classifying input type for failed job {job}: {e}")
-                    logger.error(f"Re Load Failed Jobs - Error classifying input type for failed job {job}: {e}")
-
-        except FileNotFoundError as e:
-            print(f"Error: Queue file not found - {e}")
-            logger.error(f"Re Load Failed Jobs - Error: Queue file not found - {e}")
-        except Exception as e:
-            print(f"Unexpected error loading jobs: {e}")
-            logger.error(f"Re Load Failed Jobs - Unexpected error loading jobs: {e}")
-
-        return self.jobs
 
 # This is the newer version of the re_load_failed_jobs function from the autoastv2Script unedited
 # NOTE ** Reload failed jobs may be able to be incorporated into load failed jobs to tighten up the script
@@ -1137,7 +1027,7 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
             logger.error(f'arcpy errors: {arcpy_errors}')
         
         # Indicate success
-        return_dict[job_index] = 'COMPLETE'  #NOTE CHANGED FROM SUCCESS TO COMPLETE
+        return_dict[job_index] = 'Success'  #NOTE CHANGED FROM SUCCESS TO COMPLETE
 
     except Exception as e:
         # Indicate failure
