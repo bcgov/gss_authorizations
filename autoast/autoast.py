@@ -505,7 +505,7 @@ class AST_FACTORY:
             row_values = [ws.cell(row=excel_row_index, column=col).value for col in range(1, len(header) + 1)]
             if all(value is None or str(value).strip() == '' for value in row_values):
                 print(f"Row {excel_row_index} is blank, not updating.")
-                self.logger.info(f"Add_Job_Result -Job {job_index} / Row {excel_row_index} *** SHOULD THIS BE - 1? is blank, not updating.")
+                self.logger.info(f"Add_Job_Result -Job {job_index + 1} / Row {excel_row_index} *** SHOULD THIS BE - 1? is blank, not updating.")
                 return  # Do not update if the row is blank
 
             # Update the ast condition for the specific job to the new condition (failed, queued, complete)
@@ -513,13 +513,13 @@ class AST_FACTORY:
 
             # if the condition in AST_CONDITION_COLUMN is 'Requeued" then go to the dont overwrite output column and change false to true
             if condition == 'Requeued':
-                print(f"Add Job Result - Job {job_index} failed, updating condition to 'Requeued'.")
-                self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
+                print(f"Add Job Result - Job {job_index + 1} failed, updating condition to 'Requeued'.")
+                self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
                 ws.cell(row=excel_row_index, column=dont_overwrite_outputs_index, value="True")
-                self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
+                self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
             
             # Save the workbook with the updated condition
-            self.logger.info(f"Add Job Result - Updated Job {job_index} with condition '{condition}'.")
+            self.logger.info(f"Add Job Result - Updated Job {job_index + 1} with condition '{condition}'.")
             wb.save(self.queuefile)
             self.logger.info(f"Add Job Result - Saving Workbook with updated condition")
             print(f"Updated row {excel_row_index} with condition '{condition}'.")
