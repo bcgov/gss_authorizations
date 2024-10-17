@@ -15,6 +15,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
+
+
+
+
 import os
 import shutil
 from openpyxl import Workbook, load_workbook
@@ -73,7 +78,6 @@ def setup_logging():
     
     return logger
 ###############################################################################################################################################################################
-
 
 
 
@@ -472,13 +476,20 @@ class AST_FACTORY:
             # Read the header index for the ast_condition column
             header = next(ws.iter_rows(min_row=1, max_row=1, values_only=True))
             
-            # Check if 'AST CONDITION COLUMN' exists in the header
+            # Check if 'AST CONDITION COLUMN' exists in the header. If it is not found, raise a ValueError
+            # if ast condition column IS found, log a message
             if self.AST_CONDITION_COLUMN not in header:
                 raise ValueError(f"'{self.AST_CONDITION_COLUMN}' column not found in the spreadsheet.")
             
+            if self.AST_CONDITION_COLUMN in header:
+                self.logger.info(f"Add Job Result - '{self.AST_CONDITION_COLUMN}' column found in the spreadsheet.")
+                
             # Check if 'DONT OVERWRITE OUTPUTS' exists in the header
             if self.DONT_OVERWRITE_OUTPUTS not in header:
                 raise ValueError(f"'{self.DONT_OVERWRITE_OUTPUTS}' column not found in the spreadsheet.")
+            
+            if self.DONT_OVERWRITE_OUTPUTS in header:
+                self.logger.info(f"Add Job Result - '{self.DONT_OVERWRITE_OUTPUTS}' column found in the spreadsheet.")
             
             # Find the ast condition column and assign it to the correct index
             ast_condition_index = header.index(self.AST_CONDITION_COLUMN) + 1  # +1 because Excel columns are 1-indexed
@@ -487,8 +498,9 @@ class AST_FACTORY:
             dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
-            excel_row_index = job_index + 1  # NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
-
+            excel_row_index = job_index + 2  # NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
+            self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index}")
+            
             # Check if the row is blank before updating
             row_values = [ws.cell(row=excel_row_index, column=col).value for col in range(1, len(header) + 1)]
             if all(value is None or str(value).strip() == '' for value in row_values):
@@ -496,7 +508,7 @@ class AST_FACTORY:
                 self.logger.info(f"Add_Job_Result -Job {job_index} / Row {excel_row_index} *** SHOULD THIS BE - 1? is blank, not updating.")
                 return  # Do not update if the row is blank
 
-            # Update the condition for the specific job
+            # Update the ast condition for the specific job to the new condition (failed, queued, complete)
             ws.cell(row=excel_row_index, column=ast_condition_index, value=condition)
 
             # if the condition in AST_CONDITION_COLUMN is 'Requeued" then go to the dont overwrite output column and change false to true
@@ -558,7 +570,7 @@ class AST_FACTORY:
 
         for index, job in enumerate(self.jobs):
             self.logger.info(f"Batch Ast: Starting job {index + 1}")
-            print(f"Batch Ast: Starting job {index +1}")
+            print(f"Batch Ast: Starting job {index +1} Job ({job})")
 
             # if ast condition is queued or requeued, run the job
             if job.get(self.AST_CONDITION_COLUMN) == 'Queued': #NOTE Add QUEUED AFTER TESTING***
