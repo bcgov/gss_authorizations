@@ -267,7 +267,7 @@ class AST_FACTORY:
 
                     # Loop through each column header and corresponding value in the current row
                     for key, value in zip(header, row_data):
-                        # If the key isn't empty and equals "ast_condition", assign the value to ast_condition
+                        # If the key (Column Header) isn't empty and equals "ast_condition", assign the value to ast_condition
                         if key is not None and key.lower() == self.AST_CONDITION_COLUMN.lower():
                             ast_condition = value if value is not None else ""
 
@@ -290,12 +290,12 @@ class AST_FACTORY:
                         # Assign 'Queued' to the ast_condition and update the job dictionary
                         ast_condition = 'Queued'
                         job[self.AST_CONDITION_COLUMN] = ast_condition
-                        self.logger.info(f"Load Jobs - (Queued assigned to Job ({job_index - 1}) is ({ast_condition})")
+                        self.logger.info(f"Load Jobs - Job {job_index - 1} - (Queued assigned to Job ({job_index - 1}) is ({ast_condition})")
 
                         # Immediately update the Excel sheet with the new condition
                         try:
                             self.add_job_result(job_index - 1, ast_condition)
-                            self.logger.info(f"Load Jobs - Added job condition '{ast_condition}' for job {job_index -1} to jobs list")
+                            self.logger.info(f"Load Jobs - Job {job_index - 1} - Added job condition '{ast_condition}' for job {job_index -1} to jobs list")
                         except Exception as e:
                             print(f"Error updating Excel sheet at row {job_index - 1}: {e}")
                             self.logger.error(f"Load Jobs - Error updating Excel sheet at row {job_index - 1}: {e}")
@@ -305,18 +305,23 @@ class AST_FACTORY:
                     try:
                         # self.classify_input_type(job)
                         print(f"Load Jobs - Calling Classifying input type for job {job_index - 1}")
-                        self.logger.info(f"Load Jobs - Calling Classifying input type for job {job_index - 1}")
+                        self.logger.info(f"Load Jobs - Job {job_index - 1} - Calling Classifying input type for job {job_index - 1}")
                     except Exception as e:
                         print(f"Error classifying input type for job {job}: {e}")
                         self.logger.error(f"Error classifying input type for job {job}: {e}")
 
                     # Add the job to the jobs list after all checks and processing
                     self.jobs.append(job)
-                    print(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
-                    self.logger.info(f"Load Jobs - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
+                    print(f"Load Jobs - Job {job_index - 1} - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
+                    self.logger.info(f"Load Jobs - Job {job_index - 1} - Job Condition is not Complete ({ast_condition}), adding job: {job_index - 1} to jobs list")
 
                     print(f"Load Jobs - Job dictionary is {job}")
                     self.logger.info(f"Load Jobs - Job {job_index - 1} dictionary is {job}")
+                    
+                    self.logger.info("---------------------------------------------------------------------------------------------------")
+                    self.logger.info("-----------------------------End Load Jobs----------------------------------------------------------")
+                    self.logger.info("---------------------------------------------------------------------------------------------------")
+                    self.logger.infor("\\n")
 
             except FileNotFoundError as e:
                 print(f"Error: Queue file not found - {e}")
@@ -364,7 +369,7 @@ class AST_FACTORY:
                     self.logger.info(f"Classifying Input Type - File number found for job {job_index}, running FW setup on shapefile: {feature_layer_path}")
                     # Call the build_aoi_from_shp method and then place the result in the job dictionary under feature layer
                     new_feature_layer_path = self.build_aoi_from_shp(self.jobs, feature_layer_path)
-                    self.jobs[s+'feature_layer'] = new_feature_layer_path
+                    self.jobs[+'feature_layer'] = new_feature_layer_path
                 else:
                     print(f'No FW File Number provided for the shapefile, loading original shapefile path')
                     self.logger.info(f'Classifying Input Type - No FW File Number provided for the shapefile, loading original shapefile path')
@@ -510,8 +515,9 @@ class AST_FACTORY:
 
             # Update the ast condition for the specific job to the new condition (failed, queued, complete)
             ws.cell(row=excel_row_index, column=ast_condition_index, value=condition)
-
+            self.logger.info(f"Add Job Result - Job {job_index + 1} updated with condition '{condition}'.")
             # if the condition in AST_CONDITION_COLUMN is 'Requeued" then go to the dont overwrite output column and change false to true
+            
             if condition == 'Requeued':
                 print(f"Add Job Result - Job {job_index + 1} failed, updating condition to 'Requeued'.")
                 self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
@@ -519,9 +525,9 @@ class AST_FACTORY:
                 self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
             
             # Save the workbook with the updated condition
-            self.logger.info(f"Add Job Result - Updated Job {job_index + 1} with condition '{condition}'.")
+            self.logger.info(f"Add Job Result - Job {job_index +1} Saving workbook - Updated Job {job_index + 1} with condition '{condition}'.")
             wb.save(self.queuefile)
-            self.logger.info(f"Add Job Result - Saving Workbook with updated condition")
+
             print(f"Updated row {excel_row_index} with condition '{condition}'.")
 
 
@@ -710,7 +716,7 @@ class AST_FACTORY:
 
                     # Initialize a dictionary to store the job's parameters
                     job = {}
-                    self.logger.info('Re Load Failed Jobs: Creating job emptry dictionary')
+                    self.logger.info('Re Load Failed Jobs: Creating job empty dictionary')
                     ast_condition = None  # Initialize the ast_condition for the current row
 
                     # Loop through each column header and corresponding value in the current row
@@ -744,18 +750,25 @@ class AST_FACTORY:
                         # Assign 'Requeued' to the job dictionary
                         job[self.AST_CONDITION_COLUMN] = ast_condition
 
+                        #NOTE insert a counter in here to count the jobs that have failed. If a job has failed once, it should not be marked as failed
+                        # as second time otherwise it will be requeued again.
+                        
                         # Change the 'dont_overwrite_outputs' to True
                         # job[self.DONT_OVERWRITE_OUTPUTS] = "True"
-                        print("*************************************")
-                        print("*************************************")
-                        print("*************************************")
-                        print("*************************************")
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
                         self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {index - 1} Dont Overwrite output now set to True")
-
+                        print("*************************************")
+                        print("*************************************")
+                        print("*************************************")
+                        print("*************************************")
                         # Immediately update the Excel sheet with the new condition
                         try:
                             self.add_job_result(index - 1, ast_condition)
                             self.logger.info(f"***Re Load Failed Jobs: Added job condition '{ast_condition}' for job {index - 1} to jobs list***")
+                            print(f"Re Load Failed Jobs: Added job condition '{ast_condition}' for job {index - 1} to jobs list")
                         except Exception as e:
                             print(f"Error updating Excel sheet at row {index}: {e}")
                             self.logger.error(f"Re Load Failed Jobs: Error updating Excel sheet at row {index}: {e}")
