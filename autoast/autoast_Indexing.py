@@ -35,7 +35,7 @@ import sys
 import time
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'jobs_to_fail_FAST.xlsx'
+excel_file = 'jobs_to_fail.xlsx'
 
 # Define the job timeout in seconds (6 hours)
 # JOB_TIMEOUT = 60
