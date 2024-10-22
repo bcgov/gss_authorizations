@@ -501,7 +501,7 @@ class AST_FACTORY:
             dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
-            excel_row_index = job_index + 2  # NOTE Ichanged this to +1 and it changes the ast_condition header row to Failed. So it must stay at +2
+            excel_row_index = job_index + 2  # NOTE I changed this to +1 and it changes the ast_condition header row to Failed. So it must stay at +2
             self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index}")
             
             # Check if the row is blank before updating
@@ -722,7 +722,7 @@ class AST_FACTORY:
 
                     # Initialize a dictionary to store the job's parameters
                     job = {}
-                    self.logger.info('Re Load Failed Jobs: Creating job emptry dictionary')
+                    self.logger.info('Re Load Failed Jobs: Creating job empty dictionary')
                     ast_condition = None  # Initialize the ast_condition for the current row
 
                     # Loop through each column header and corresponding value in the current row
@@ -757,11 +757,12 @@ class AST_FACTORY:
                         job[self.AST_CONDITION_COLUMN] = ast_condition
 
                         # Change the 'dont_overwrite_outputs' to True
-                        # job[self.DONT_OVERWRITE_OUTPUTS] = "True"
-                        print("*************************************")
-                        print("*************************************")
-                        print("*************************************")
-                        print("*************************************")
+                        job[self.DONT_OVERWRITE_OUTPUTS] = "True"
+                        
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
+                        self.logger.info("*************************************")
                         self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {job_index - 1} Dont Overwrite output now set to True")
 
                         # Immediately update the Excel sheet with the new condition
