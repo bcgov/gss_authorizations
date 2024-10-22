@@ -501,8 +501,8 @@ class AST_FACTORY:
             dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
-            excel_row_index = job_index + 1  # NOTE THIS COULD BE WHERE INDEX ISSUES ARE #BUG
-            self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index +1}")
+            excel_row_index = job_index + 2  # NOTE Ichanged this to +1 and it changes the ast_condition header row to Failed. So it must stay at +2
+            self.logger.info(f"Add Job Result - Calculated Excel row index as {excel_row_index} for job index {job_index}")
             
             # Check if the row is blank before updating
             row_values = [ws.cell(row=excel_row_index, column=col).value for col in range(1, len(header) + 1)]
@@ -516,10 +516,10 @@ class AST_FACTORY:
 
             # if the condition in AST_CONDITION_COLUMN is 'Requeued" then go to the dont overwrite output column and change false to true
             if condition == 'Requeued':
-                print(f"Add Job Result - Job {job_index + 1} failed, updating condition to 'Requeued'.")
-                self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
+                print(f"Add Job Result - Job {job_index} failed, updating condition to 'Requeued'.  **CHANGED JOB INDEX +1 to JOB INDEX ***") #NOTE CHANGED JOB INDEX + 1 to JOB INDEX
+                self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1? ***failed, updating condition to 'Requeued'.") 
                 ws.cell(row=excel_row_index, column=dont_overwrite_outputs_index, value="True")
-                self.logger.info(f"Add Job Result - Job {job_index + 1} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
+                self.logger.info(f"Add Job Result - Job {job_index} (Row {excel_row_index}) SHOULD THIS BE - 1?**** failed, updating dont_overwrite_outputs to 'True'.")
             
             # Save the workbook with the updated condition
             self.logger.info(f"Add Job Result - Updated Job {job_index + 1} with condition '{condition}'.")
@@ -606,32 +606,42 @@ class AST_FACTORY:
             #     print(f"Batch Ast: Requeued Job....Multiproccessing started......")
 
         # Monitor and enforce timeouts
+        timeout_failed_counter = 0
+        success_counter = 0
+        other_failed_counter = 0
         for process, job_index in processes:
             process.join(JOB_TIMEOUT)
             if process.is_alive():
+                
                 print(f"Batch Ast: Job {job_index} exceeded timeout. Terminating process.")
                 self.logger.warning(f"Batch Ast: Job {job_index} exceeded timeout. Terminating process.")
                 process.terminate()
                 process.join()
                 self.add_job_result(job_index, 'Failed')
+                
+                timeout_failed_counter+= 1
+                self.logger.error(f"Batch Ast: Job {job_index} exceeded timeout. Marking as Failed. Failed counter is {timeout_failed_counter}")
+                
             else:
                 # Check if job succeeded
                 result = return_dict.get(job_index)
                 if result == 'Success':
+                    success_counter += 1
                     self.add_job_result(job_index, 'COMPLETE')
                     print(f"Batch Ast: Job {job_index} completed successfully.")
-                    self.logger.info(f"Batch Ast: Job {job_index} completed successfully.")
+                    self.logger.info(f"Batch Ast: Job {job_index} completed successfully. Success counter is {success_counter}")
                 else:
                     self.add_job_result(job_index, 'Failed')
-                    print(f"Batch Ast: Job {job_index} failed.")
-                    self.logger.error(f"Batch AST: Job {job_index} failed.")
+                    other_failed_counter += 1
+                    print(f"Batch Ast: Job {job_index} Failed.")
+                    self.logger.error(f"Batch AST: Job {job_index} failed. Other failed counter is {other_failed_counter}")
          
             
     def re_batch_failed_ast(self):
-        global counter
+
         ''' Executes the loaded failed jobs'''
 
-        counter = 1
+
         print("Re Batching AST")
         
         logger.info("***************************************************************************************************************************")
@@ -641,24 +651,22 @@ class AST_FACTORY:
         logger.info(f"Rebatch Failed AST - Number of failed jobs: {len(self.jobs)}")
         
         # iterate through the jobs and run the start_ast_tb function on each row of the excel sheet
-        for job in self.jobs:
+        for job_index, job in enumerate(self.jobs):
             try:
-                print(f"Starting job {counter}")
-                logger.info(f"Rebatching Failed AST - Starting job {counter}")
+                # print(f"Starting job {counter}")
+                logger.info(f"Rebatching Failed AST - Starting job {job_index}")
                 
                 # Start the Ast Tool
                 self.start_ast_tb([job])
-                print(f"Job {counter} COMPLETE")
-                logger.info(f"Rebatching Failed AST - Job {counter} COMPLETE")
+                # print(f"Job {counter} COMPLETE")
+                logger.info(f"Rebatching Failed AST - Job {job_index} COMPLETE")
                 self.add_job_result(job_index, 'COMPLETE')
 
             except Exception as e:
                 # Log the exception and the job that caused it
-                print(f"Error encountered with job {counter}: {e}")
-                logger.error(f"Rebatching Failed AST - Error encountered with job {counter}: {e}")
+                # print(f"Error encountered with job {counter}: {e}")
+                logger.error(f"Rebatching Failed AST - Error encountered with job {job_index}: {e}")
                 self.add_job_result(job_index, 'Failed')
-            finally:
-                counter += 1
 
 # This is the newer version of the re_load_failed_jobs function from the autoastv2Script unedited
 # NOTE ** Reload failed jobs may be able to be incorporated into load failed jobs to tighten up the script
@@ -701,14 +709,15 @@ class AST_FACTORY:
                     data.append(row)
 
                 # Iterate over each row of data; enumerate to keep track of the row number in Excel
-                for index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
+                for job_index, row_data in enumerate(data, start=2):  # Start from 2 to account for Excel header
                     
+                    # NOTE Need to use job-index - 1 to account for the starting at 2 in the excel sheet
                     # print(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
-                    self.logger.info(f"Re Load Failed Jobs: Job index is {index -1} and row data is {row_data}")
+                    self.logger.info(f"Re Load Failed Jobs: Job index is {job_index -1} and row data is {row_data}")
                     # Skip any completely blank rows
                     if all((value is None or str(value).strip() == '') for value in row_data):
-                        print(f"Re Load Failed Jobs: Skipping blank row at index {index -1 }")
-                        self.logger.info(f"Re Load Failed Jobs: Skipping blank row at index {index -1}")
+                        print(f"Re Load Failed Jobs: Skipping blank row at index {job_index -1 }")
+                        self.logger.info(f"Re Load Failed Jobs: Skipping blank row at index {job_index -1}")
                         continue  # Skip this row entirely
 
                     # Initialize a dictionary to store the job's parameters
@@ -734,8 +743,8 @@ class AST_FACTORY:
 
                     # Skip if marked as "COMPLETE"
                     if ast_condition.upper() == 'COMPLETE':
-                        print(f"Re Load Failed Jobs: Skipping job {index - 1} as it is marked COMPLETE.")
-                        self.logger.info(f"Re Load Failed Jobs: Inside for loop: Skipping job {index - 1} as it is marked COMPLETE.")
+                        print(f"Re Load Failed Jobs: Skipping job {job_index - 1} as it is marked COMPLETE.")
+                        self.logger.info(f"Re Load Failed Jobs: Inside for loop: Skipping job {job_index - 1} as it is marked COMPLETE.")
                         continue  
 
                     # **Only requeue jobs that are marked as 'FAILED'**
@@ -753,22 +762,22 @@ class AST_FACTORY:
                         print("*************************************")
                         print("*************************************")
                         print("*************************************")
-                        self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {index - 1} Dont Overwrite output now set to True")
+                        self.logger.info(f"Re Load Failed Jobs: Re Loading Jobs - Job {job_index - 1} Dont Overwrite output now set to True")
 
                         # Immediately update the Excel sheet with the new condition
                         try:
-                            self.add_job_result(index - 1, ast_condition)
-                            self.logger.info(f"***Re Load Failed Jobs: Added job condition '{ast_condition}' for job {index - 1} to jobs list***")
+                            self.add_job_result(job_index - 1, ast_condition)
+                            self.logger.info(f"***Re Load Failed Jobs: Added job condition '{ast_condition}' for job {job_index - 1} to jobs list***")
                         except Exception as e:
-                            print(f"Error updating Excel sheet at row {index}: {e}")
-                            self.logger.error(f"Re Load Failed Jobs: Error updating Excel sheet at row {index}: {e}")
+                            print(f"Error updating Excel sheet at row {job_index}: {e}")
+                            self.logger.error(f"Re Load Failed Jobs: Error updating Excel sheet at row {job_index}: {e}")
 
                         # Add the job to the jobs list
                         self.jobs.append(job)
                     else:
                         # Skip other jobs
-                        print(f"Re Load Failed Jobs: Skipping job {index - 1} as it is not marked FAILED.")
-                        self.logger.info(f"Re Load Failed Jobs: Skipping job {index - 1} as it is not marked FAILED.")
+                        print(f"Re Load Failed Jobs: Skipping job {job_index - 1} as it is not marked FAILED.")
+                        self.logger.info(f"Re Load Failed Jobs: Skipping job {job_index - 1} as it is not marked FAILED.")
                         continue
 
             except FileNotFoundError as e:
