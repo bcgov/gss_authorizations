@@ -255,15 +255,10 @@ class AST_FACTORY:
                     print(f'Row is {row}')
                     
                     data.append(row)
-                
-
-
             
-                
                 # Iterate over each row of data; enumerate to keep track of the row number in Excel
                 for job_index, row_data in enumerate(data):  
 
-                    # Dictionary where key is index key is Job number dictionary is the dictionary of jobs
                     # Send job to processer and include status
                     self.logger.info(f"\n")
                     self.logger.info(f"-------------------------------------------------------------------------------")
@@ -356,7 +351,7 @@ class AST_FACTORY:
 
 
     def classify_input_type(self, job):
-        '''Classify the input type and process accordingly.'''
+        '''Classifies the input file as either .shp or .kml and process accordingly.'''
 
         if job.get('feature_layer'):
             print(f'Feature layer found: {job["feature_layer"]}')
@@ -434,7 +429,7 @@ class AST_FACTORY:
             ast_condition_index = header.index(self.AST_CONDITION_COLUMN) + 1  # +1 because Excel columns are 1-indexed
 
             # # Find the dont_overwrite_outputs column and assign it to the correct index
-            # dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
+            dont_overwrite_outputs_index = header.index(self.DONT_OVERWRITE_OUTPUTS) + 1  # +1 because Excel columns are 1-indexed
             
             # Calculate the actual row index in Excel, +2 to account for header and 0-index
             excel_row_index = job_index + 2  # NOTE I changed this to +1 and it changes the ast_condition header row to Failed. So it must stay at +2
@@ -957,7 +952,7 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
 
     # Set up logging folder in the worker process
     logger.info(f"Process Job Mp: Worker process {mp.current_process().pid} started for job {job_index}")
-    log_folder = os.path.join(current_path, f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}')
+    log_folder = os.path.join(current_path, f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}_{excel_file[:-5]}')
     if not os.path.exists(log_folder):
         os.mkdir(log_folder)
         logger.info(f"Process Job Mp: Created log folder {log_folder}")
@@ -1066,6 +1061,8 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
         # Indicate success
         return_dict[job_index] = 'Success'  
 
+        clean_up_T_drive()
+    
     except Exception as e:
         # Indicate failure
         return_dict[job_index] = 'Failed'
@@ -1076,7 +1073,34 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
         logger.error(f"Process Job Mp: Job {job_index} failed with error: {e}")
         logger.error(f"Process Job Mp: Traceback:\n{traceback_str}")
 
+def clean_up_T_drive():
+    '''This function will clean up the T drive by deleting all the temp files and folders created by the ast tool in the T drive'''
 
+    # Unpack the DB User from the secrets tuple to get the IDIR username
+    
+    db_user = secrets[0]
+    print("DB User is: ", db_user)
+
+    # Set the T drive path
+    t_drive = os.path(r'T:', f'StatusMaps_{db_user}') #T:\StatusMaps_CSOSTAD
+    print(f"Cleaning up T drive at '{t_drive}'")
+    if not t_drive:
+        raise EnvironmentError("T_DRIVE environment variable is not set.")
+    
+    # Check if the T drive exists
+    if not os.path.exists(t_drive):
+        raise FileNotFoundError(f"T drive path '{t_drive}' does not exist.")
+    
+    # Delete all files and folders in the T drive
+    for item in os.listdir(t_drive):
+        item_path = os.path.join(t_drive, item)
+        if os.path.isfile(item_path):
+            os.remove(item_path)
+        elif os.path.isdir(item_path):
+            shutil.rmtree(item_path)
+    
+    print(f"Cleaned up T drive at '{t_drive}'")
+    logger.info(f"Cleaned up T drive at '{t_drive}'")
 #################################################################################################################################################################################
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
