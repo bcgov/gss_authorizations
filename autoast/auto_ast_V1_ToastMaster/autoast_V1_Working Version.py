@@ -26,10 +26,10 @@ import logging
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'Cariboo_replacement_1_job.xlsx'
+excel_file = 'remaining.xlsx'
+# Spreadsheet cannot be open in any other window or you will get an access denied error
 
-# Define the job timeout in seconds (6 hours) *** Timeout currently not working in this version *** No need to change the time
-JOB_TIMEOUT = 6 * 60 * 60
+
 
 ###############################################################################################################################################################################
 # Set up logging
