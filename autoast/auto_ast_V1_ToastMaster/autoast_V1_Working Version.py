@@ -26,14 +26,14 @@ import logging
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'remaining.xlsx'
+excel_file = 'Cariboo_replacement_1_job.xlsx'
 # Spreadsheet cannot be open in any other window or you will get an access denied error
 
 
 
 ###############################################################################################################################################################################
 # Set up logging
-
+#SETUPLOGGING
 def setup_logging():
     ''' Set up logging for the script '''
     # Create the log folder filename

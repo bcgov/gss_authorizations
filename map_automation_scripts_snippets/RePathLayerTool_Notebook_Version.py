@@ -4,7 +4,7 @@ import sys
 
 def log(msg):
     """
-    Helper function to print and also add a message
+    Helper function: prints to console and also adds a message
     so it appears in ArcGIS tool messages.
     """
     print(msg)
@@ -12,35 +12,46 @@ def log(msg):
 
 def fix_broken_layers(lyr, old_prefix, new_prefix):
     """
-    Recursively fixes broken data sources in a layer.
-    If the layer is a group layer, it fixes all sub-layers.
+    Recursively fix broken layers. If a layer is a group layer, we
+    fix each sub-layer by calling this function again.
     Returns True if any broken data sources were fixed, False otherwise.
     """
     fixed_any = False
 
-    # If it's a group layer, fix each sub-layer
+    # If it's a group layer, go through all its sub-layers
     if lyr.isGroupLayer:
-        for sub_lyr in lyr.listLayers():
+        sublayers = lyr.listLayers()
+        for sub_lyr in sublayers:
             sub_fixed = fix_broken_layers(sub_lyr, old_prefix, new_prefix)
             if sub_fixed:
                 fixed_any = True
+        # No direct 'datasource' fix for the group layer itself,
+        # so just pass through here.
     else:
-        # If it's a single (non-group) layer
+        # Check if the layer is broken
         if lyr.isBroken:
             if lyr.supports("DATASOURCE"):
                 old_full_path = lyr.dataSource
                 log(f"  Found broken data source: {old_full_path}")
 
-                # Check if ".gdb" is in the path
+                # Check if ".gdb" is present 
+                # eg. Q:\dsswhse\Data\Base\Base20\Base20.gdb
+                # Split at Q:\dsswhse\Data\Base\Base20\Base20     --> .gdb
+                # Replace with \\giswhse.env.gov.bc.ca\whse_np\corp\cartographic_resources\data_whse
                 if ".gdb" in old_full_path:
-                    # Extract the workspace up to ".gdb"
+                    # Extract workspace up to ".gdb"
                     old_ws = old_full_path.split(".gdb")[0] + ".gdb"
-
-                    # Check if old_prefix is in old_ws
+                    
+                    # If the old prefix is "Q:\dsswhse\Data" 
+                    # replace that with the new prefix
+                    # "\\giswhse.env.gov.bc.ca\whse_np\corp\cartographic_resources\data_whse"
                     if old_prefix in old_ws:
+                        # Replace the old prefix with the new prefix
                         new_ws = old_ws.replace(old_prefix, new_prefix)
                         log(f"  Updating connection from:\n    {old_ws}\n  to:\n    {new_ws}")
+
                         try:
+                            # Update at the workspace level
                             lyr.updateConnectionProperties(old_ws, new_ws)
                             log("  Data source successfully updated.")
                             fixed_any = True
@@ -52,7 +63,7 @@ def fix_broken_layers(lyr, old_prefix, new_prefix):
                 else:
                     log("  Could not find '.gdb' in the path; skipping workspace-level update.")
             else:
-                log(f"  Layer '{lyr.name}' does not support 'DATASOURCE' property.")
+                log(f"  Layer '{lyr.name}' does not support DATASOURCE property.")
         else:
             log(f"  Layer '{lyr.name}' is not broken; no action needed.")
 
@@ -62,11 +73,12 @@ def main():
     # Define the old and new path segments
     oldPrefix = r"Q:\dsswhse\Data"
     newPrefix = r"\\giswhse.env.gov.bc.ca\whse_np\corp\cartographic_resources\data_whse"
+    
 
-    # Folder for saving the .lyrx files
+    # Folder where you want to save the .lyrx files
     output_dir = r"C:\Users\CSOSTAD\Desktop\LayerFileExportTest"
 
-    # Attempt to reference the current ArcGIS Pro project
+    # Attempt to get the current ArcGIS Pro project
     try:
         aprx = arcpy.mp.ArcGISProject("CURRENT")
         log("Successfully referenced the current ArcGIS Pro project.")
@@ -75,7 +87,7 @@ def main():
         arcpy.AddError(e)
         sys.exit(1)
 
-    # List the maps
+    # Iterate through each map in the project
     maps = aprx.listMaps()
     if not maps:
         log("No maps found in the current project.")
@@ -84,51 +96,41 @@ def main():
     for m in maps:
         log(f"\n--- Checking map: {m.name} ---")
 
-        # Instead of using 'recursive=False', we list all layers
-        # then filter to find only those that are top-level.
-        try:
-            all_layers = m.listLayers()
-        except Exception as e:
-            log(f"ERROR: Could not list layers in map '{m.name}'.\n{e}")
-            arcpy.AddError(e)
+        layers = m.listLayers()
+        if not layers:
+            log(f"Map '{m.name}' has no layers.")
             continue
 
-        if not all_layers:
-            log(f"  Map '{m.name}' has no layers.")
-            continue
+        # For each top-level layer, fix data sources (recursively if needed)
+        # and then export the entire layer (group or single) as a .lyrx file.
+        for lyr in layers:
+            log(f"Layer: {lyr.name}")
 
-        # Identify only top-level layers by checking the 'longName'
-        top_level_layers = []
-        for lyr in all_layers:
-            # If a layer is truly top-level, then lyr.longName == lyr.name
-            # Alternatively, we can check if "\\" is in lyr.longName
-            # but direct equality is usually simpler in Pro
-            if lyr.longName == lyr.name:
-                top_level_layers.append(lyr)
-
-        for lyr in top_level_layers:
-            layer_name = lyr.name
-            log(f"Layer: {layer_name}")
-
-            # Fix broken data sources for this layer (and its sub-layers if it's a group)
+            # Fix broken sub-layers (if it's a group) or the layer itself
             try:
                 fix_broken_layers(lyr, oldPrefix, newPrefix)
             except Exception as e:
-                log(f"  ERROR: Could not fix broken layers for '{layer_name}'.\n{e}")
+                log(f"  ERROR: Could not fix broken layers for '{lyr.name}'.\n{e}")
                 arcpy.AddError(e)
 
-            # Now export THIS layer (which includes all sub-layers if it's a group)
-            layer_filename = f"{layer_name}.lyrx"
+            # After fixing, export the whole top-level layer as a single .lyrx
+            layer_filename = f"{lyr.name}.lyrx"
             layer_file_path = os.path.join(output_dir, layer_filename)
 
             try:
-                log(f"  Saving the layer (and any sub-layers) to:\n    {layer_file_path}")
+                log(f"  Saving entire layer (with sub-layers) to:\n    {layer_file_path}")
                 arcpy.management.SaveToLayerFile(lyr, layer_file_path, "RELATIVE")
             except Exception as e:
-                log(f"  ERROR: Could not save layer file for '{layer_name}'.\n{e}")
+                log(f"  ERROR: Could not save layer file for '{lyr.name}'.\n{e}")
                 arcpy.AddError(e)
 
-
+    # Optionally, you can save the project to preserve changes in the .aprx
+    # try:
+    #     aprx.saveACopy(r"C:\Users\CSOSTAD\Desktop\LayerFileExportTest\UpdatedProject.aprx")
+    #     log("Saved a copy of the project with updated layers.")
+    # except Exception as e:
+    #     log(f"ERROR: Could not save a copy of the project.\n{e}")
+    #     arcpy.AddError(e)
 
 if __name__ == "__main__":
     main()
