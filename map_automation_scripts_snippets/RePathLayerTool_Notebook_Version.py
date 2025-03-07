@@ -2,6 +2,9 @@ import arcpy
 import os
 import sys
 
+
+
+
 def log(msg):
     """
     Helper function: prints to console and also adds a message
