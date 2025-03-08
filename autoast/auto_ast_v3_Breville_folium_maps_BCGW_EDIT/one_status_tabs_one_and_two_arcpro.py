@@ -32,12 +32,13 @@
 
 import sys, string, os, time, datetime, arcpy, csv, runpy    #@UnusedImport
 import openpyxl
-import keyring
+# import keyring
 from openpyxl import Workbook   #@UnusedImport
 from openpyxl.styles import Alignment, NamedStyle, Font, Fill, PatternFill, colors, Color #Border, Side #@UnusedImport
 from openpyxl.styles.borders import Border, Side
+from database_connection import secrets
 
-sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps_BCGW_EDIT')
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 import universal_overlap_tool_arcpro as revolt
 import inactive_dispositions as inactives
@@ -45,7 +46,7 @@ import config
 
 #------------------------------------------------------------------------------ 
 arcpy.env.overwriteOutput = True
-
+print(f"Processing job using shared connection {arcpy.env.workspace}")
 class one_status_part2_tool(object):
     # this is the object that creates the one_status_tabs_1_and_2.xlsx 
     
@@ -301,19 +302,30 @@ class one_status_part2_tool(object):
             parcel_list = [row[0] for row in arcpy.da.SearchCursor(clip_parcel,['INTRID_SID'])]
             print(len(parcel_list))
 
+#NOTE Edits made here
+
             #get credentials from keyring
-            key_name = config.CONNNAME
+            # key_name = config.CONNNAME
+            # try:
+            #     credentials = keyring.get_credential(key_name, "")
+            #     username = credentials.username
+            #     password = credentials.password
+            # except Exception as e:
+            #     print(e)
+            #     arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
+            #     return
+            #arcpy.AddMessage(f"username: {username} password: {password}")
+            #pass credentials to get Oracle driver and then retrieve the list of inactive crown tenures.
+
+            
+            # key_name = config.CONNNAME
             try:
-                credentials = keyring.get_credential(key_name, "")
-                username = credentials.username
-                password = credentials.password
+                username, password = secrets
             except Exception as e:
                 print(e)
                 arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
                 return
-            #arcpy.AddMessage(f"username: {username} password: {password}")
-            #pass credentials to get Oracle driver and then retrieve the list of inactive crown tenures.
-
+            
             oracle_driver = inactives.get_oracle_driver()
             if oracle_driver:
                 inactive_list = inactives.execute_process(parcel_list,username,password,oracle_driver)

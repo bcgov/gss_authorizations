@@ -260,24 +260,24 @@ class ManageCredentials:
             self.logger.warning(f"Invalid credentials. {remaining_tries} tries remaining.")
             return self.get_and_check_credentials(remaining_tries)
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
     # Create an instance of ManageCredentials
-    key_name = config.CONNNAME
-    out = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\logging"
+    # key_name = config.CONNNAME
+    # out = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\logging"
 
-    try:
-        oracleCreds = ManageCredentials(key_name, out)
-        if not oracleCreds.check_credentials():
-            arcpy.AddError("BCGW credentials could not be established.")
-            print("BCGW credentials could not be established.")
-            sys.exit()
-    except Exception as e:
-        arcpy.AddError("Failure occurred when establishing BCGW connection.")
-        print(f"Failure occurred when establishing BCGW connection - {e}")
-        sys.exit()
-    print(os.getenv("SDE_FILE_PATH"))
-    print(keyring.get_credential(key_name, ""))
+    # try:
+    #     oracleCreds = ManageCredentials(key_name, out)
+    #     if not oracleCreds.check_credentials():
+    #         arcpy.AddError("BCGW credentials could not be established.")
+    #         print("BCGW credentials could not be established.")
+    #         sys.exit()
+    # except Exception as e:
+    #     arcpy.AddError("Failure occurred when establishing BCGW connection.")
+    #     print(f"Failure occurred when establishing BCGW connection - {e}")
+    #     sys.exit()
+    # print(os.getenv("SDE_FILE_PATH"))
+    # print(keyring.get_credential(key_name, ""))
 
-    #cleanup credentials and sde connections
-    keyring.delete_password(key_name, "sdrichar")
-    shutil.rmtree(os.path.dirname(os.path.abspath(os.environ["SDE_FILE_PATH"])))
+    # #cleanup credentials and sde connections
+    # keyring.delete_password(key_name, "sdrichar")
+    # shutil.rmtree(os.path.dirname(os.path.abspath(os.environ["SDE_FILE_PATH"])))

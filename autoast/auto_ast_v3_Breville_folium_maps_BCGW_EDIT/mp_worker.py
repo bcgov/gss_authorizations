@@ -1,12 +1,6 @@
 import sys
 
-
-
-
-
-
-
-def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
+def process_job_mp(ast_instance, job, job_index, current_path, connection_path, return_dict):
     import os
     import arcpy
     import datetime
@@ -46,19 +40,22 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
     )
 
     try:
+        # Set the arcpy workspace to the shared connection file to avoid creating a new connection
+        arcpy.env.workspace = connection_path
+        logger.info(f"Process Job Mp: arcpy.env.workspace set to connection path: {connection_path}")
+
         # Re-import the toolbox in each process
         ast_toolbox = os.getenv('TOOLBOX')  # Get the toolbox path from environment variables
         ast_toolbox_alias = os.getenv('TOOLBOXALIAS')  # Get the toolbox alias from environment variables
         if ast_toolbox:
             arcpy.ImportToolbox(ast_toolbox, ast_toolbox_alias)
-            print(f"Process Job Mp: AST Toolbox imported successfully in worker.")
-            logger.info(f"Process Job Mp: AST Toolbox imported successfully in worker.")
+            print("Process Job Mp: AST Toolbox imported successfully in worker.")
+            logger.info("Process Job Mp: AST Toolbox imported successfully in worker.")
         else:
             raise ImportError("Process Job Mp: AST Toolbox path not found. Ensure TOOLBOX path is set correctly in environment variables.")
 
         # Prepare parameters
         params = []
-
         # Convert 'true'/'false' strings to booleans
         for param in ast_instance.AST_PARAMETERS.values():
             value = job.get(param)
@@ -66,34 +63,9 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
                 value = True if value.lower() == 'true' else False
             params.append(value)
         
-        #NOTE: This is where the output directory is set
+        # NOTE: This is where the output directory is set
         # Get the output directory from the job
         output_directory = job.get('output_directory')
-
-        # # If output_directory is not provided
-        # if not output_directory:
-        #     # Check if 'output directory is same as input directory' is set to True
-        #     output_same_as_input = job.get('output_directory_is_same_as_input_directory')
-        #     if output_same_as_input == True or str(output_same_as_input).lower() == 'true':
-        #         # Use the input_directory as output_directory
-        #         #NOTE This handling is already present in the AST Tool
-        #         output_directory = job.get('input_directory')
-        #         if not output_directory:
-        #             raise ValueError(f"Process Job Mp: 'Input Directory' is required when 'Output Directory is same as Input Directory' is True for job {job_index}.")
-        #         job['output_directory'] = output_directory
-        #         logger.info(f"Process Job Mp: Output directory is same as input directory for job {job_index}. Using: {output_directory}")
-        #     else:
-        #         # If there was no output directory provided and 'output directory is same as input directory' is False
-        #         # Set the default output directory to a default location (This can be changed later) This will prevent the job from failing due to a user error
-                
-        #         #DELETE This was put in for testing so that it's easy to delete all outputs from one place at once. 
-        #         DEFAULT_DIR = os.getenv('DIR')
-        #         output_directory = os.path.join("T:", f'job{job_index}')
-        #         job['output_directory'] = output_directory
-        #         logger.warning(f"Process Job Mp: Output directory not provided for job {job_index}. Using default path: {output_directory}")
-        # else:
-        #     # Output directory is provided
-        #     job['output_directory'] = output_directory
 
         # Create the output directory if the user put in a path but failed to create the output directory in Windows explorer
         if output_directory and not os.path.exists(output_directory):
@@ -105,7 +77,6 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
                 logger.warning(f"'{output_directory}' created.")
             except OSError as e:
                 raise RuntimeError(f"Failed to create the output directory '{output_directory}'. Check your permissions: {e}")
-
 
         # Ensure that region has been entered otherwise job will fail
         if not job.get('region'):

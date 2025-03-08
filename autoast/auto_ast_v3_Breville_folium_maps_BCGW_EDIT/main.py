@@ -31,41 +31,34 @@ excel_file = 'gr_2025_26_1_job.xlsx'
 
 
 #################################################################################################################################################################################
+# main.py
 if __name__ == '__main__':
     current_path = os.path.dirname(os.path.realpath(__file__))
-
-    # Call the setup_logging function to log the messages
     logger = setup_logging()
-
-    # Load the default environment
     load_dotenv()
 
-    # Call the import_ast function to import the AST toolbox
-    template = import_ast(logger)
-
-    # Call the setup_bcgw function to set up the database connection
-    secrets = setup_bcgw(logger)
+    # Set up the connection and retrieve connection_path and credentials
+    connection_path, secrets = setup_bcgw(logger)
+    print(f"Main: connection_path: {connection_path}")
+    print(f"Main: secrets: {secrets}")
 
     # Create the path for the queuefile
     qf = os.path.join(current_path, excel_file)
 
-    # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
-    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
+    # Create an instance of your AST_FACTORY class, now including the connection_path
+    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path, connection_path)
 
+    # Proceed with your workflow
     if not os.path.exists(qf):
         print("Main: Queuefile not found, creating new queuefile")
         logger.info("Main: Queuefile not found, creating new queuefile")
         ast.create_new_queuefile()
         
-    # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs"    
     jobs = ast.load_jobs()
-    
     ast.batch_ast()
-    
     ast.re_load_failed_jobs_V2()
-    
     ast.batch_ast()
-    
     print("Main: AST Factory COMPLETE")
     logger.info("Main: AST Factory COMPLETE")
+
 
