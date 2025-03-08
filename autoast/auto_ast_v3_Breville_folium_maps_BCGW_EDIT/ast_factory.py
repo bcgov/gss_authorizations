@@ -36,14 +36,11 @@ class AST_FACTORY:
     AST_SCRIPT = ''
     job_index = None  # Initialize job_index as a global variable
     
-    def __init__(self, queuefile, db_user, db_pass, logger=None, current_path=None, connection_path=None) -> None:
-        self.user = db_user
-        self.user_cred = db_pass
+    def __init__(self, queuefile, logger, current_path, connection_path):
         self.queuefile = queuefile
-        self.jobs = []
-        self.logger = logger or logging.getLogger(__name__)
-        self.current_path = current_path  
-        self.connection_path = connection_path  # Store the shared connection path
+        self.logger = logger
+        self.current_path = current_path
+        self.connection_path = connection_path
 
     def load_jobs(self):
         '''

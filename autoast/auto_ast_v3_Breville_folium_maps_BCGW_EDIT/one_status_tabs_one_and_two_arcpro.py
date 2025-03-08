@@ -36,12 +36,16 @@ import openpyxl
 from openpyxl import Workbook   #@UnusedImport
 from openpyxl.styles import Alignment, NamedStyle, Font, Fill, PatternFill, colors, Color #Border, Side #@UnusedImport
 from openpyxl.styles.borders import Border, Side
-from database_connection import secrets
+import arcpy
+
 
 sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps_BCGW_EDIT')
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 import universal_overlap_tool_arcpro as revolt
 import inactive_dispositions as inactives
+import config
+import arcpy
+from database_connection import get_sde_credentials
 import config
 
 #------------------------------------------------------------------------------ 
@@ -304,45 +308,42 @@ class one_status_part2_tool(object):
 
 #NOTE Edits made here
 
-            #get credentials from keyring
-            # key_name = config.CONNNAME
-            # try:
-            #     credentials = keyring.get_credential(key_name, "")
-            #     username = credentials.username
-            #     password = credentials.password
-            # except Exception as e:
-            #     print(e)
-            #     arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
-            #     return
-            #arcpy.AddMessage(f"username: {username} password: {password}")
-            #pass credentials to get Oracle driver and then retrieve the list of inactive crown tenures.
 
             
-            # key_name = config.CONNNAME
+
             try:
-                username, password = secrets
-            except Exception as e:
-                print(e)
-                arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
-                return
-            
-            oracle_driver = inactives.get_oracle_driver()
-            if oracle_driver:
-                inactive_list = inactives.execute_process(parcel_list,username,password,oracle_driver)
-                self.interest_status = inactive_list['interest_status']
-                self.interest_type = inactive_list['interest_type']
-                self.dpr_registry_name = inactive_list['dpr_registry_name']
-                self.business_identifier = inactive_list['business_identifier']
-                self.responsible_agency = inactive_list['responsible_agency']
-                self.summary_holders_ilrr_identifier = inactive_list['summary_holders_ilrr_identifier']
+                # Use your shared .sde file
+                connection_path = r"\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps_BCGW_EDIT\connection\bcgw.sde"
+                arcpy.env.workspace = connection_path
+                arcpy.AddMessage(f"Database workspace set to: {connection_path}")
+
+                # Extract credentials directly from .sde file
+                username, password = get_sde_credentials(connection_path)
+
+                arcpy.AddMessage(f"Username retrieved from connection file: {username}")
+
+                # Get Oracle driver
+                oracle_driver = inactives.get_oracle_driver()
+                if oracle_driver:
+                    # Now use credentials from .sde file as usual
+                    parcel_list = [...]  # Your parcel list retrieval logic here
+                    inactive_list = inactives.execute_process(parcel_list, username, password, oracle_driver=oracle_driver)
+                    self.interest_status = inactive_list['interest_status']
+                    self.interest_type = inactive_list['interest_type']
+                    self.dpr_registry_name = inactive_list['dpr_registry_name']
+                    self.business_identifier = inactive_list['business_identifier']
+                    self.responsible_agency = inactive_list['responsible_agency']
+                    self.summary_holders_ilrr_identifier = inactive_list['summary_holders_ilrr_identifier']
 
                 if self.business_identifier:
                     return True
                 else:
                     return False
-            else:
-                arcpy.AddMessage("Oracle driver could not be returned!")
-                return
+
+            
+            except Exception as e:
+                arcpy.AddError(f"Unable to set workspace or execute database query: {e}")
+                raise
 
         else:
             arcpy.AddMessage("No interest parcels returned!")

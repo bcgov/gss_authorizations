@@ -54,7 +54,7 @@ import sys, string, os, time, datetime, arcpy, csv, subprocess, keyring
 message = "Now Running " + str(sys.argv[0])
 
 # import the statusing tool
-sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps_BCGW_EDIT')
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 import universal_overlap_tool_arcpro as revolt
 import create_bcgw_sde_connection as connect_bcgw

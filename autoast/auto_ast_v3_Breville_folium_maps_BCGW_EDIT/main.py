@@ -40,10 +40,9 @@ if __name__ == '__main__':
     # Create the path for the queuefile
     qf = os.path.join(current_path, excel_file)
 
-    # Create an instance of your AST_FACTORY class,
-    # now including the connection_path and passing the DB credentials properly.
-    # Note: secrets is a list [DB_USER, DB_PASS]
-    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path, connection_path)
+
+    connection_path = setup_bcgw(logger)
+    ast = AST_FACTORY(qf, logger, current_path, connection_path)
 
     # Proceed with your workflow
     if not os.path.exists(qf):
