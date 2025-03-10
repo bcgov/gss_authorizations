@@ -1,6 +1,6 @@
 # autoast is a script for batch processing the automated status tool
 # author: csostad and wburt
-# copyrite Governent of British Columbia
+# copyright Governent of British Columbia
 # Copyright 2019 Province of British Columbia
 
 # Licensed under the Apache License, Version 2.0 (the "License");
