@@ -205,18 +205,22 @@ arcpy.AddMessage("Checking BCGW Credentials - may take a minute to process...")
 
 #set the key name that will be used for storing credentials in keyring
 key_name = config.CONNNAME
-try:
-    oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
-    #get sde path location
-    if not oracleCreds.check_credentials():
-        arcpy.AddError("BCGW credentials could not be established.")
-        sys.exit()
-    sde = os.getenv("SDE_FILE_PATH")
-    arcpy.AddMessage(f"sde file location: {sde}")
+# try:
+#     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
+#     #get sde path location
+#     if not oracleCreds.check_credentials():
+#         arcpy.AddError("BCGW credentials could not be established.")
+#         sys.exit()
+#     sde = os.getenv("SDE_FILE_PATH")
+#     arcpy.AddMessage(f"sde file location: {sde}")
 
-except Exception as e:
-    arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
-    sys.exit()
+# except Exception as e:
+#     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
+#     sys.exit()
+
+#NOTE - Removed Oracle Connection and replaced with SDE Connection
+sde = os.getenv("SDE_FILE_PATH")
+
 
 #Check RAAD connection
 raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")

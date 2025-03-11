@@ -95,29 +95,37 @@ import config
 from logging_setup import setup_logging
 
 
-# Call the setup_logging function to log the messages
-logger = setup_logging()
 
-print("importing setupbcgw")
-from database_connection import setup_bcgw
+print("Getting SDE File Path from os.getenv")
+
+
+sde = os.getenv("SDE_FILE_PATH")
+
+if not sde or not os.path.exists(sde):
+    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
+    sys.exit()
+
+# Call the setup_logging function to log the messages
+# logger = setup_logging()
+
+
+# from database_connection import setup_bcgw
 
 # Call the function to get secrets and the sde connection path
-secrets, sde_connection, sde_path = setup_bcgw(logger)
+# secrets, sde_connection, sde_path = setup_bcgw(logger)
 
-DB_USER, DB_PASS = secrets 
-sde = sde_connection
-s_path = sde_path
+# DB_USER, DB_PASS = secrets 
+# sde = sde_connection
+# s_path = sde_path
 
 
-# From create_bcgw_sde_connection.py
-os.environ["SDE_FILE_PATH"] = sde
-logger.info(f"SDE created in: {sde}")
+
 
 # Verify it works
 print("Database User Found")
-print("Database Password:", DB_PASS)
 
-print("SDE Connection:", s_path)
+
+# print("SDE Connection:", s_path)
 # arcpy.env.workspace = bcgw_sde_path
 
 
@@ -594,12 +602,14 @@ def main():
         arcpy.AddMessage(".")
         arcpy.AddMessage(".")
 
+#NOTE removed the deletion of the .sde file
+
     #cleanup temporary sde file
-    try:
-        shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
-        del os.environ["SDE_FILE_PATH"]
-    except Exception as e:
-        pass
+    # try:
+    #     shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
+    #     del os.environ["SDE_FILE_PATH"]
+    # except Exception as e:
+    #     pass
     
 
 #___________________________________________________________________________

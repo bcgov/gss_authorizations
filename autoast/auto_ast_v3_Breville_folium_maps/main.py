@@ -32,7 +32,7 @@ excel_file = 'gr_2025_26_jobs.xlsx'
 
 #################################################################################################################################################################################
 if __name__ == '__main__':
-    current_path = os.path.dirname(os.path.realpath(__file__))
+    
 
     # Call the setup_logging function to log the messages
     logger = setup_logging()
@@ -44,9 +44,16 @@ if __name__ == '__main__':
     template = import_ast(logger)
 
     # Call the setup_bcgw function to set up the database connection
-    secrets = setup_bcgw(logger)
+    # secrets = setup_bcgw(logger)
+    secrets, sde_connection, sde_path = setup_bcgw(logger)
+
+    # Set the SDE path environment variable for easy access by workers
+    os.environ["SDE_FILE_PATH"] = sde_path
+    logger.info(f"SDE Connection established at: {sde_path}")
+    
     
     # Create the path for the queuefile
+    current_path = os.path.dirname(os.path.realpath(__file__))
     qf = os.path.join(current_path, excel_file)
 
     # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
