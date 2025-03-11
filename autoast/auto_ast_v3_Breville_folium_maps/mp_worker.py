@@ -26,7 +26,7 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
 
     # Set up logging folder in the worker process
     logger.info(f"Process Job Mp: Worker process {mp.current_process().pid} started for job {job_index}")
-    log_folder = os.path.join(current_path, f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}')
+    log_folder = os.path.join(current_path, f'autoast_worker_logs_{datetime.datetime.now().strftime("%Y%m%d")}')
     if not os.path.exists(log_folder):
         os.mkdir(log_folder)
         logger.info(f"Process Job Mp: Created log folder {log_folder}")

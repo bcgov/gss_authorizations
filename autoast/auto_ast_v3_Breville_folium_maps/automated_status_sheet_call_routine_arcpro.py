@@ -93,6 +93,8 @@ import one_status_tabs_one_and_two_arcpro as one_status_part2
 import create_bcgw_sde_connection as connect_bcgw
 import config
 from logging_setup import setup_logging
+
+
 # Call the setup_logging function to log the messages
 logger = setup_logging()
 
@@ -112,7 +114,7 @@ os.environ["SDE_FILE_PATH"] = sde
 logger.info(f"SDE created in: {sde}")
 
 # Verify it works
-print("Database User:", DB_USER)
+print("Database User Found")
 print("Database Password:", DB_PASS)
 
 print("SDE Connection:", s_path)
