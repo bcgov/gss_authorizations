@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     # Call the setup_bcgw function to set up the database connection
     secrets = setup_bcgw(logger)
-
+    
     # Create the path for the queuefile
     qf = os.path.join(current_path, excel_file)
 

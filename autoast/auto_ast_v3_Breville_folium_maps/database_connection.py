@@ -65,11 +65,15 @@ def setup_bcgw(logger):
 
 
     arcpy.env.workspace = bcgw_con.getOutput(0)
+    
+    sde_path = os.path.join(connection_folder, 'bcgw.sde')
 
     print("workspace set to bcgw connection")
     logger.info("workspace set to bcgw connection")
     
     secrets = [DB_USER, DB_PASS]
+    sde_connection = arcpy.env.workspace
     
-    return secrets
+    return secrets, sde_connection, sde_path
+
 ###############################################################################################################################################################################
