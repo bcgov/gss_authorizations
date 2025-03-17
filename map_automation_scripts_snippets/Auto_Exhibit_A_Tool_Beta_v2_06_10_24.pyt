@@ -59,11 +59,11 @@
     # if there are multiple cut blocks, the zoom factor should be around 0.1
     # Need to tweak the ESF Submission IDs and the layouts,ll
     
-# FEATURES    
+# FEATURES  to Implement  
     # Use the Table Element X,Y function to automatacally place the table in a given area each time
     # When you run the script but are unhappy with the map size, feature should be that you
-        # Can manually choose a layout from a drop down menu and then regenerate the map without bumping out 
-        # The data sources.
+    # Can manually choose a layout from a drop down menu and then regenerate the map without bumping out 
+    # The data sources.
     
 
 
@@ -297,7 +297,7 @@ class Tool(object):
            
 
 
-            # *** FUNCTIONS / CLASSES ***
+        # *** FUNCTIONS / CLASSES ***
 
 
         
