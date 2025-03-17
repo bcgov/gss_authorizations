@@ -53,12 +53,27 @@ import sys, string, os, time, datetime, arcpy, csv, subprocess, keyring
 #stop
 message = "Now Running " + str(sys.argv[0])
 
+#EDIT changed the path to the statusing tool to the new location
 # import the statusing tool
-sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
-# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
+# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps')
 import universal_overlap_tool_arcpro as revolt
 import create_bcgw_sde_connection as connect_bcgw
 import config
+
+print("Getting SDE File Path from os.getenv")
+
+#EDIT - get the SDE file path from the environment variable
+sde = os.getenv("SDE_FILE_PATH")
+
+if not sde or not os.path.exists(sde):
+    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
+    sys.exit()
+# Verify it works
+print("Database User Found")
+
+
+
 
 #------------------------------------------------------------------------------ 
 arcpy.AddMessage("======================================================================")
@@ -218,8 +233,7 @@ key_name = config.CONNNAME
 #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
 #     sys.exit()
 
-#NOTE - Removed Oracle Connection and replaced with SDE Connection
-sde = os.getenv("SDE_FILE_PATH")
+
 
 
 #Check RAAD connection

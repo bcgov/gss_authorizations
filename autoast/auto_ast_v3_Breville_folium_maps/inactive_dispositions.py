@@ -3,28 +3,44 @@ import pyodbc
 import pandas as pd
 import arcpy
 from tantalis_bigQuery import load_sql
+import sys
 
 import config
 
 
-def connect_to_DB (driver,server,port,dbq, username,password):
-    """ Returns a connection to Oracle database"""
-    try:
-        connectString ="""
-                    DRIVER={driver};
-                    SERVER={server}:{port};
-                    DBQ={dbq};
-                    Uid={uid};
-                    Pwd={pwd}
-                       """.format(driver=driver,server=server, port=port,
-                                  dbq=dbq,uid=username,pwd=password)
+print("Getting SDE File Path from os.getenv")
 
-        connection = pyodbc.connect(connectString)
-        print  ("...Successffuly connected to the database")
-    except:
-        raise Exception('...Connection failed! Please check your connection parameters')
+#EDIT - get the SDE file path from the environment variable
+sde = os.getenv("SDE_FILE_PATH")
 
-    return connection
+if not sde or not os.path.exists(sde):
+    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
+    sys.exit()
+# Verify it works
+print("Database User Found")
+
+connection = sde
+
+
+#EDIT - commented out the connection to the SDE
+# def connect_to_DB (driver,server,port,dbq, username,password):
+#     """ Returns a connection to Oracle database"""
+#     try:
+#         connectString ="""
+#                     DRIVER={driver};
+#                     SERVER={server}:{port};
+#                     DBQ={dbq};
+#                     Uid={uid};
+#                     Pwd={pwd}
+#                        """.format(driver=driver,server=server, port=port,
+#                                   dbq=dbq,uid=username,pwd=password)
+
+#         connection = pyodbc.connect(connectString)
+#         print  ("...Successffuly connected to the database")
+#     except:
+#         raise Exception('...Connection failed! Please check your connection parameters')
+
+#     return connection
 
 
 def read_query(connection,query):
@@ -118,17 +134,44 @@ def get_oracle_driver():
         return
 
 
-def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
+# def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
+#     """Generates a csv of inactive Lands dispositions"""
+    
+#     print('Connecting to BCGW.')
+#     driver = oracle_driv #'Oracle in OraClient12Home2'
+#     server = config.CONNSERVER
+#     port = config.CONNPORT
+#     dbq = config.CONNDBQ
+#     hostname = config.CONNINSTANCE
+
+#     connection = connect_to_DB(driver,server,port,dbq,bcgw_user,bcgw_pwd)
+    
+#     print ('Loading SQL queries.')
+#     sql = load_sql()
+    
+#     print ('Execute the query.')
+#     parcels_q_str = format_parcels_list(parcel_list)
+
+#     query = sql['inactive_lands'].format(prcl=parcels_q_str)# add the parcels list to the SQL query
+
+#     df_inact_lands = read_query(connection,query) #execute the query and store results in a dataframe
+
+#     print ('Retrieve Inactive info.')
+#     ilrr_info = get_inact_info(df_inact_lands)
+
+#     return ilrr_info
+#EDIT - changed the function signature to accept the SDE file path
+def execute_process(parcel_list,sde):
     """Generates a csv of inactive Lands dispositions"""
     
-    print('Connecting to BCGW.')
-    driver = oracle_driv #'Oracle in OraClient12Home2'
-    server = config.CONNSERVER
-    port = config.CONNPORT
-    dbq = config.CONNDBQ
-    hostname = config.CONNINSTANCE
+    print('TEST 4 - Inside Execute_Process in inactive dispoitions.py ......Connecting to BCGW.')
+    # driver = oracle_driv #'Oracle in OraClient12Home2'
+    # server = config.CONNSERVER
+    # port = config.CONNPORT
+    # dbq = config.CONNDBQ
+    # hostname = config.CONNINSTANCE
 
-    connection = connect_to_DB(driver,server,port,dbq,bcgw_user,bcgw_pwd)
+    connection = sde
     
     print ('Loading SQL queries.')
     sql = load_sql()
@@ -156,7 +199,11 @@ if __name__=="__main__":
     #aoi = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\test_files\TEST_district.shp"
     
     print ('Retrieving the parcels list')
-    sde = r"h:\arcpro\bcgw.sde"
+    
+    
+    # sde = r"h:\arcpro\bcgw.sde"
+    
+    print("Inside main of inactive_dispositions.py")
     parcel_fc = os.path.join(sde, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
     clip_parcel = arcpy.Clip_analysis(parcel_fc, aoi, r"memory\parcel_clip")
     result = int(arcpy.GetCount_management(clip_parcel).getOutput(0))
@@ -165,7 +212,8 @@ if __name__=="__main__":
         parcel_list = [row[0] for row in arcpy.da.SearchCursor(clip_parcel,['INTRID_SID'])]
         print(len(parcel_list))
         drvr = get_oracle_driver()
-        ilrr = execute_process(parcel_list,bcgw_user,bcgw_pwd,drvr)
+        # ilrr = execute_process(parcel_list,bcgw_user,bcgw_pwd,drvr)
+        ilrr = execute_process(parcel_list,sde)
         print(ilrr)
 
     else:

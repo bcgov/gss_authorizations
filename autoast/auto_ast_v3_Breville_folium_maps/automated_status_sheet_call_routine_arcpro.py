@@ -90,7 +90,8 @@ sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\cso
 
 import universal_overlap_tool_arcpro as revolt #@UnresolvedImport
 import one_status_tabs_one_and_two_arcpro as one_status_part2
-import create_bcgw_sde_connection as connect_bcgw
+
+#import create_bcgw_sde_connection as connect_bcgw
 import config
 from logging_setup import setup_logging
 
@@ -98,12 +99,14 @@ from logging_setup import setup_logging
 
 print("Getting SDE File Path from os.getenv")
 
-
+#EDIT - get the SDE file path from the environment variable
 sde = os.getenv("SDE_FILE_PATH")
 
 if not sde or not os.path.exists(sde):
     arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
     sys.exit()
+# Verify it works
+print("Database User Found")
 
 # Call the setup_logging function to log the messages
 # logger = setup_logging()
@@ -121,8 +124,7 @@ if not sde or not os.path.exists(sde):
 
 
 
-# Verify it works
-print("Database User Found")
+
 
 
 # print("SDE Connection:", s_path)
@@ -145,7 +147,7 @@ print("Database User Found")
 ## Process ##
 #Check to ensure Advanced licencing has been applied.
 arcpy.AddMessage("======================================================================")
-arcpy.AddMessage("TESt 3 Checking for ArcGIS Pro Advanced license _TEST")
+arcpy.AddMessage("TEST 4 -  Checking for ArcGIS Pro Advanced license _TEST")
 
 #Check to ensure Advanced licencing has been applied.
 advStatus = ["Available", "AlreadyInitialized"]
@@ -246,7 +248,7 @@ def main():
 
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("TEST3 Checking BCGW Credentials - may take a minute to process...")
+    arcpy.AddMessage("TEST 4 Checking BCGW Credentials - may take a minute to process...")
 
                         # #set the key name that will be used for storing credentials in keyring
                         # key_name = config.CONNNAME

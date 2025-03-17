@@ -37,8 +37,8 @@ from openpyxl import Workbook   #@UnusedImport
 from openpyxl.styles import Alignment, NamedStyle, Font, Fill, PatternFill, colors, Color #Border, Side #@UnusedImport
 from openpyxl.styles.borders import Border, Side
 
-sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
-# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
+#sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps')
 import universal_overlap_tool_arcpro as revolt
 import inactive_dispositions as inactives
 import config
@@ -55,7 +55,7 @@ class one_status_part2_tool(object):
 
     def run_tool(self, passed_input_list):
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage("running the one status part 2 tool")
+        arcpy.AddMessage("TEST 4  - running the one status part 2 tool")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("Passed Inputs:")
         i = 0
