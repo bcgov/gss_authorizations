@@ -82,6 +82,7 @@ Imports the needed libraries
 import sys, os, openpyxl, arcpy, runpy, shutil, subprocess
 from openpyxl.styles import Alignment, Font, PatternFill #,Border
 from openpyxl.styles.borders import Border, Side
+from dotenv import load_dotenv
 
 # import both the statusing tools which create tabs 1, 2, 3
 # sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast')
@@ -107,6 +108,13 @@ if not sde or not os.path.exists(sde):
     sys.exit()
 # Verify it works
 print("Database User Found")
+
+
+
+
+
+
+
 
 # Call the setup_logging function to log the messages
 # logger = setup_logging()

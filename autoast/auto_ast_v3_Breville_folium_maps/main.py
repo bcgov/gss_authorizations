@@ -26,7 +26,7 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'gr_2025_26_jobs.xlsx'
+excel_file = 'gr_2025_jobs.xlsx'
 
 
 
@@ -46,7 +46,8 @@ if __name__ == '__main__':
     # Call the setup_bcgw function to set up the database connection
     # secrets = setup_bcgw(logger)
     secrets, sde_connection, sde_path = setup_bcgw(logger)
-
+    # username, password = secrets[0], secrets[1]
+    
     # Set the SDE path environment variable for easy access by workers
     os.environ["SDE_FILE_PATH"] = sde_path
     logger.info(f"SDE Connection established at: {sde_path}")

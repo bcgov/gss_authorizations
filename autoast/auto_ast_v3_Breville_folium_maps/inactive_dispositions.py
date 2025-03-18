@@ -1,9 +1,11 @@
 import os
+from argon2 import PasswordHasher
 import pyodbc
 import pandas as pd
 import arcpy
 from tantalis_bigQuery import load_sql
 import sys
+from dotenv import load_dotenv
 
 import config
 
@@ -19,28 +21,32 @@ if not sde or not os.path.exists(sde):
 # Verify it works
 print("Database User Found")
 
-connection = sde
+# connection = sde
+# print(f"Inside inactive_dispositions.py - Connection: {connection}")
 
+# Assign secret file data to variables    
+username = os.getenv('BCGW_USER')
+password = os.getenv('BCGW_PASS')
 
 #EDIT - commented out the connection to the SDE
-# def connect_to_DB (driver,server,port,dbq, username,password):
-#     """ Returns a connection to Oracle database"""
-#     try:
-#         connectString ="""
-#                     DRIVER={driver};
-#                     SERVER={server}:{port};
-#                     DBQ={dbq};
-#                     Uid={uid};
-#                     Pwd={pwd}
-#                        """.format(driver=driver,server=server, port=port,
-#                                   dbq=dbq,uid=username,pwd=password)
+def connect_to_DB (driver,server,port,dbq, username,password):
+    """ Returns a connection to Oracle database"""
+    try:
+        connectString ="""
+                    DRIVER={driver};
+                    SERVER={server}:{port};
+                    DBQ={dbq};
+                    Uid={uid};
+                    Pwd={pwd}
+                       """.format(driver=driver,server=server, port=port,
+                                  dbq=dbq,uid=username,pwd=password)
 
-#         connection = pyodbc.connect(connectString)
-#         print  ("...Successffuly connected to the database")
-#     except:
-#         raise Exception('...Connection failed! Please check your connection parameters')
+        connection = pyodbc.connect(connectString)
+        print  ("...Successffuly connected to the database")
+    except:
+        raise Exception('...Connection failed! Please check your connection parameters')
 
-#     return connection
+    return connection
 
 
 def read_query(connection,query):
@@ -133,45 +139,18 @@ def get_oracle_driver():
         arcpy.AddWarning("TAB2 could not be generated. Oracle drivers do not exist on the GTS. Please contact geospatialservices.waterland@gov.bc.ca for support")
         return
 
-
-# def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
-#     """Generates a csv of inactive Lands dispositions"""
-    
-#     print('Connecting to BCGW.')
-#     driver = oracle_driv #'Oracle in OraClient12Home2'
-#     server = config.CONNSERVER
-#     port = config.CONNPORT
-#     dbq = config.CONNDBQ
-#     hostname = config.CONNINSTANCE
-
-#     connection = connect_to_DB(driver,server,port,dbq,bcgw_user,bcgw_pwd)
-    
-#     print ('Loading SQL queries.')
-#     sql = load_sql()
-    
-#     print ('Execute the query.')
-#     parcels_q_str = format_parcels_list(parcel_list)
-
-#     query = sql['inactive_lands'].format(prcl=parcels_q_str)# add the parcels list to the SQL query
-
-#     df_inact_lands = read_query(connection,query) #execute the query and store results in a dataframe
-
-#     print ('Retrieve Inactive info.')
-#     ilrr_info = get_inact_info(df_inact_lands)
-
-#     return ilrr_info
-#EDIT - changed the function signature to accept the SDE file path
-def execute_process(parcel_list,sde):
+#EDIT Execute Process Function
+def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
     """Generates a csv of inactive Lands dispositions"""
     
-    print('TEST 4 - Inside Execute_Process in inactive dispoitions.py ......Connecting to BCGW.')
-    # driver = oracle_driv #'Oracle in OraClient12Home2'
-    # server = config.CONNSERVER
-    # port = config.CONNPORT
-    # dbq = config.CONNDBQ
-    # hostname = config.CONNINSTANCE
+    print('Connecting to BCGW.')
+    driver = oracle_driv #'Oracle in OraClient12Home2'
+    server = config.CONNSERVER
+    port = config.CONNPORT
+    dbq = config.CONNDBQ
+    hostname = config.CONNINSTANCE
 
-    connection = sde
+    connection = connect_to_DB(driver,server,port,dbq,bcgw_user,bcgw_pwd)
     
     print ('Loading SQL queries.')
     sql = load_sql()
@@ -187,12 +166,39 @@ def execute_process(parcel_list,sde):
     ilrr_info = get_inact_info(df_inact_lands)
 
     return ilrr_info
+# - changed the function signature to accept the SDE file path
+# def execute_process(parcel_list):
+#     """Generates a csv of inactive Lands dispositions"""
+    
+#     print('TEST 4 - Inside Execute_Process in inactive dispoitions.py ......Connecting to BCGW.')
+#     # driver = oracle_driv #'Oracle in OraClient12Home2'
+#     # server = config.CONNSERVER
+#     # port = config.CONNPORT
+#     # dbq = config.CONNDBQ
+#     # hostname = config.CONNINSTANCE
+
+#     connection = sde
+    
+#     print ('Loading SQL queries.')
+#     sql = load_sql()
+    
+#     print ('Execute the query.')
+#     parcels_q_str = format_parcels_list(parcel_list)
+
+#     query = sql['inactive_lands'].format(prcl=parcels_q_str)# add the parcels list to the SQL query
+
+#     df_inact_lands = read_query(connection,query) #execute the query and store results in a dataframe
+
+#     print ('Retrieve Inactive info.')
+#     ilrr_info = get_inact_info(df_inact_lands)
+
+#     return ilrr_info
 
 
 if __name__=="__main__":
 
-    bcgw_user = ''
-    bcgw_pwd = ''
+    bcgw_user = username
+    bcgw_pwd = password 
 
     aoi = ''
     #aoi = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\test_runs\test_moez\one_status_tabs_1_and_2_datasets.gdb\aoi"
@@ -212,8 +218,9 @@ if __name__=="__main__":
         parcel_list = [row[0] for row in arcpy.da.SearchCursor(clip_parcel,['INTRID_SID'])]
         print(len(parcel_list))
         drvr = get_oracle_driver()
-        # ilrr = execute_process(parcel_list,bcgw_user,bcgw_pwd,drvr)
-        ilrr = execute_process(parcel_list,sde)
+        #EDIT - Execute Process Called
+        ilrr = execute_process(parcel_list,bcgw_user,bcgw_pwd,drvr)
+        # ilrr = execute_process(parcel_list,sde)
         print(ilrr)
 
     else:
