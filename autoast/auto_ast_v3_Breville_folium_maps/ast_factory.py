@@ -341,7 +341,7 @@ class AST_FACTORY:
             if job.get(self.AST_CONDITION_COLUMN) in ['Queued', 'Requeued']: #NOTE Add QUEUED AFTER TESTING***
                 
                 # Start each job in a separate process
-                p = mp.Process(target=process_job_mp, args=(self, job, job_index, self.current_path, return_dict))
+                p = mp.Process(target=process_job_mp, args=(self, job, job_index, self.current_path, os.getenv("SDE_FILE_PATH"), return_dict))
                 
                 # Append the process object to the processes list and job_index. This list keeps track of all the processes and their corresponding job indices.
                 processes.append((p, job_index))

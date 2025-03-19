@@ -6,7 +6,7 @@ import sys
 
 
 
-def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
+def process_job_mp(ast_instance, job, job_index, current_path, sde_path, return_dict):
     import os
     import arcpy
     import datetime
@@ -24,9 +24,14 @@ def process_job_mp(ast_instance, job, job_index, current_path, return_dict):
 
     print(f"Process Job Mp: Processing job {job_index}: {job}")
 
+    #EDIT This is where the SDE path is set.
+    # Set arcpy workspace to existing SDE path directly passed in. This is to avoid multiple connections to the SDE. SDE connections
+    # have been removed from the AST Tool
+    arcpy.env.workspace = sde_path
+    
     # Set up logging folder in the worker process
     logger.info(f"Process Job Mp: Worker process {mp.current_process().pid} started for job {job_index}")
-    log_folder = os.path.join(current_path, f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}')
+    log_folder = os.path.join(current_path, f'autoast_worker_logs_{datetime.datetime.now().strftime("%Y%m%d")}')
     if not os.path.exists(log_folder):
         os.mkdir(log_folder)
         logger.info(f"Process Job Mp: Created log folder {log_folder}")

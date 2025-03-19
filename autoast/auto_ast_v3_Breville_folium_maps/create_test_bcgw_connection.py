@@ -7,7 +7,7 @@ import os
 from dotenv import load_dotenv
 import arcpy
 
-def setup_bcgw(logger):
+def setup_bcgw():
     # Get the secret file containing the database credentials
     SECRET_FILE = os.getenv('SECRET_FILE')
 
@@ -15,10 +15,10 @@ def setup_bcgw(logger):
     if SECRET_FILE:
         load_dotenv(SECRET_FILE)
         print(f"Secret file {SECRET_FILE} found")
-        logger.info(f"Secret file {SECRET_FILE} found")
+        #logger.info(f"Secret file {SECRET_FILE} found")
     else:
         print("Secret file not found")
-        logger.error("Secret file not found")
+        #logger.error("Secret file not found")
 
     # Assign secret file data to variables    
     DB_USER = os.getenv('BCGW_USER')
@@ -28,10 +28,10 @@ def setup_bcgw(logger):
     # If DB_USER and DB_PASS found display a print message, if not found display an error message
     if DB_USER and DB_PASS:
         print(f"Database user {DB_USER} and password found")
-        logger.info(f"Database user {DB_USER} and password found")
+        #logger.info(f"Database user {DB_USER} and password found")
     else:
         print("Database user and password not found")
-        logger.error("Database user and password not found")
+        #logger.error("Database user and password not found")
 
     # Define current path of the executing script
     current_path = os.path.dirname(os.path.realpath(__file__))
@@ -43,7 +43,7 @@ def setup_bcgw(logger):
     # Check for the existance of the connection folder and if it doesn't exist, print an error and create a new connection folder
     if not os.path.exists(connection_folder):
         print("Connection folder not found, creating new connection folder")
-        logger.info("Connection folder not found, creating new connection folder")
+        #logger.info("Connection folder not found, creating new connection folder")
         os.mkdir(connection_folder)
 
     # Check for an existing bcgw connection, if there is one, remove it
@@ -63,7 +63,7 @@ def setup_bcgw(logger):
     #NOTE - Changed save username from do not save to save username
 
     print("new db connection created")
-    logger.info("new db connection created")
+    #ogger.info("new db connection created")
 
 
     arcpy.env.workspace = bcgw_con.getOutput(0)
@@ -71,7 +71,7 @@ def setup_bcgw(logger):
     sde_path = os.path.join(connection_folder, 'bcgw.sde')
 
     print("workspace set to bcgw connection")
-    logger.info("workspace set to bcgw connection")
+    #logger.info("workspace set to bcgw connection")
     
     secrets = [DB_USER, DB_PASS]
     sde_connection = arcpy.env.workspace

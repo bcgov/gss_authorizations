@@ -82,80 +82,31 @@ Imports the needed libraries
 import sys, os, openpyxl, arcpy, runpy, shutil, subprocess
 from openpyxl.styles import Alignment, Font, PatternFill #,Border
 from openpyxl.styles.borders import Border, Side
-from dotenv import load_dotenv
 
 # import both the statusing tools which create tabs 1, 2, 3
-# sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast')
+# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
+# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps')
-# sys.path.append(r'P:\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
-
 import universal_overlap_tool_arcpro as revolt #@UnresolvedImport
 import one_status_tabs_one_and_two_arcpro as one_status_part2
-
-#import create_bcgw_sde_connection as connect_bcgw
+import create_bcgw_sde_connection as connect_bcgw
 import config
-from logging_setup import setup_logging
+from database_connection import bcgw_con
+
+print(f"bcgw_con: {bcgw_con}")
 
 
-
-print("Getting SDE File Path from os.getenv")
-
-#EDIT - get the SDE file path from the environment variable
-sde = os.getenv("SDE_FILE_PATH")
-
-if not sde or not os.path.exists(sde):
-    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
-    sys.exit()
-# Verify it works
-print("Database User Found")
-
-
-
-
-
-
-
-
-# Call the setup_logging function to log the messages
-# logger = setup_logging()
-
-
-# from database_connection import setup_bcgw
-
-# Call the function to get secrets and the sde connection path
-# secrets, sde_connection, sde_path = setup_bcgw(logger)
-
-# DB_USER, DB_PASS = secrets 
-# sde = sde_connection
-# s_path = sde_path
-
-
-
-
-
-
-
-# print("SDE Connection:", s_path)
-# arcpy.env.workspace = bcgw_sde_path
-
-
-
-
-# # arcpy.env.workspace = secrets.getOutput(0)
-# print(f"Workspace set to bcgw connection: {arcpy.env.workspace}")
-# # sde = secrets.getOutput(0)
+# arcpy.env.workspace = bcgw_con.getOutput(0)
+# print(f"workspace set to bcgw connection: {arcpy.env.workspace}")
+# sde = bcgw_con.getOutput(0)
 # print(f"sde: {sde}")
-
-
-
-
 
 #___________________________________________________________________________
 
 ## Process ##
 #Check to ensure Advanced licencing has been applied.
 arcpy.AddMessage("======================================================================")
-arcpy.AddMessage("TEST 4 -  Checking for ArcGIS Pro Advanced license _TEST")
+arcpy.AddMessage("INSIDE TOOLBOX Checking for ArcGIS Pro Advanced license")
 
 #Check to ensure Advanced licencing has been applied.
 advStatus = ["Available", "AlreadyInitialized"]
@@ -172,7 +123,7 @@ def main():
     Function that prepares variables and data, checks for errors in the data, and
     runs the universal overlap and automated status tools
     '''
-    message = "TEST!  - Now Running " + str(sys.argv[0])
+    message = "Now Running " + str(sys.argv[0])
     arcpy.AddMessage(message)
 
 
@@ -222,7 +173,7 @@ def main():
     geodatabase if the dont_overwrite_outputs != True
     '''
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage(" TEST3  Checking existence of GDB")
+    arcpy.AddMessage("INSIDE TOOLBOX   Checking existence of GDB")
     #specify output folder and gdb to store the input spatial depending
     #on parameters set by user in tool parameters.
     gdb_name = "aoi_boundary.gdb"
@@ -256,21 +207,21 @@ def main():
 
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("TEST 4 Checking BCGW Credentials - may take a minute to process...")
+    arcpy.AddMessage("INSIDE TOOLBOX Checking BCGW Credentials - may take a minute to process...")
 
-                        # #set the key name that will be used for storing credentials in keyring
-                        # key_name = config.CONNNAME
-                        # try:
-                        #     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
-                        #     #get sde path location
-                        #     if not oracleCreds.check_credentials():
-                        #         arcpy.AddError("BCGW credentials could not be established.")
-                        #         sys.exit()
-                        #     sde = os.getenv("SDE_FILE_PATH")
+    #set the key name that will be used for storing credentials in keyring
+    key_name = config.CONNNAME
+    try:
+        oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
+        #get sde path location
+        if not oracleCreds.check_credentials():
+            arcpy.AddError("BCGW credentials could not be established.")
+            sys.exit()
+        sde = os.getenv("SDE_FILE_PATH")
 
-                        # except Exception as e:
-                        #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
-                        #     sys.exit()
+    except Exception as e:
+        arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
+        sys.exit()
 
     #Check RAAD connection
     raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")
@@ -612,14 +563,12 @@ def main():
         arcpy.AddMessage(".")
         arcpy.AddMessage(".")
 
-#NOTE removed the deletion of the .sde file
-
     #cleanup temporary sde file
-    # try:
-    #     shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
-    #     del os.environ["SDE_FILE_PATH"]
-    # except Exception as e:
-    #     pass
+    try:
+        shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
+        del os.environ["SDE_FILE_PATH"]
+    except Exception as e:
+        pass
     
 
 #___________________________________________________________________________
