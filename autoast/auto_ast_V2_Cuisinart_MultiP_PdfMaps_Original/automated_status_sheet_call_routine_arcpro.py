@@ -84,29 +84,21 @@ from openpyxl.styles import Alignment, Font, PatternFill #,Border
 from openpyxl.styles.borders import Border, Side
 
 # import both the statusing tools which create tabs 1, 2, 3
-# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
-# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
-sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps')
+
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\statusing_tools_arcpro\Ready')
+
+
 import universal_overlap_tool_arcpro as revolt #@UnresolvedImport
 import one_status_tabs_one_and_two_arcpro as one_status_part2
 import create_bcgw_sde_connection as connect_bcgw
 import config
-from database_connection import bcgw_con
-
-print(f"bcgw_con: {bcgw_con}")
-
-
-# arcpy.env.workspace = bcgw_con.getOutput(0)
-# print(f"workspace set to bcgw connection: {arcpy.env.workspace}")
-# sde = bcgw_con.getOutput(0)
-# print(f"sde: {sde}")
 
 #___________________________________________________________________________
 
 ## Process ##
 #Check to ensure Advanced licencing has been applied.
 arcpy.AddMessage("======================================================================")
-arcpy.AddMessage("INSIDE TOOLBOX Checking for ArcGIS Pro Advanced license")
+arcpy.AddMessage("Checking for ArcGIS Pro Advanced license")
 
 #Check to ensure Advanced licencing has been applied.
 advStatus = ["Available", "AlreadyInitialized"]
@@ -173,7 +165,7 @@ def main():
     geodatabase if the dont_overwrite_outputs != True
     '''
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("INSIDE TOOLBOX   Checking existence of GDB")
+    arcpy.AddMessage("   Checking existence of GDB")
     #specify output folder and gdb to store the input spatial depending
     #on parameters set by user in tool parameters.
     gdb_name = "aoi_boundary.gdb"
@@ -207,7 +199,7 @@ def main():
 
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("INSIDE TOOLBOX Checking BCGW Credentials - may take a minute to process...")
+    arcpy.AddMessage("Checking BCGW Credentials - may take a minute to process...")
 
     #set the key name that will be used for storing credentials in keyring
     key_name = config.CONNNAME

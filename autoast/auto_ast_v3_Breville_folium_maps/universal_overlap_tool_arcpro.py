@@ -71,10 +71,10 @@ class revolt_tool(object):
         #NOTE Assigned SDE FILE PATH to self.sde_connection
         self.sde_connection = os.getenv("SDE_FILE_PATH")
 
-        #EDIT
-        print("======================================================================")
-        print(f"Inside Universal Overlap Tool Arcpro.py Sde Connection is {self.sde_connection}")
-        print("======================================================================")
+        # #EDIT
+        # print("======================================================================")
+        # print(f"Inside Universal Overlap Tool Arcpro.py Sde Connection is {self.sde_connection}")
+        # print("======================================================================")
         
         self.assign_english_names_to_list_position_numbers()
         self.split_passed_in_argument_into_individual_variables(passed_input_list)
@@ -122,7 +122,7 @@ class revolt_tool(object):
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('TEST 4 Universal Overlap Tool finished running')
+        arcpy.AddMessage('Batch Ast V3 - Universal Overlap Tool finished running')
 
         EndTime = time.perf_counter()
         TotalRunTimeStr = "Total Run Time is " + str(int(EndTime - StartTime))
@@ -450,7 +450,7 @@ class revolt_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('TEST 4 Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Batch Ast V3 - Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage("    Creating the raw AOI ")

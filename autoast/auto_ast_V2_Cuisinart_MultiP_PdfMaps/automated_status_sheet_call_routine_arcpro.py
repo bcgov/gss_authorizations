@@ -82,23 +82,37 @@ Imports the needed libraries
 import sys, os, openpyxl, arcpy, runpy, shutil, subprocess
 from openpyxl.styles import Alignment, Font, PatternFill #,Border
 from openpyxl.styles.borders import Border, Side
+from dotenv import load_dotenv
 
 # import both the statusing tools which create tabs 1, 2, 3
 
-sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\statusing_tools_arcpro\Ready')
-
+# sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\statusing_tools_arcpro\Ready')
+sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_V2_Cuisinart_MultiP_PdfMaps')
 
 import universal_overlap_tool_arcpro as revolt #@UnresolvedImport
 import one_status_tabs_one_and_two_arcpro as one_status_part2
-import create_bcgw_sde_connection as connect_bcgw
+# import create_bcgw_sde_connection as connect_bcgw
 import config
+from logging_setup import setup_logging
+
+print("Getting SDE File Path from os.getenv")
+
+#EDIT - get the SDE file path from the environment variable
+sde = os.getenv("SDE_FILE_PATH")
+
+if not sde or not os.path.exists(sde):
+    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
+    sys.exit()
+# Verify it works
+print("Database User Found")
+
 
 #___________________________________________________________________________
 
 ## Process ##
 #Check to ensure Advanced licencing has been applied.
 arcpy.AddMessage("======================================================================")
-arcpy.AddMessage("Checking for ArcGIS Pro Advanced license")
+arcpy.AddMessage("Batch Ast V2 -  Checking for ArcGIS Pro Advanced license")
 
 #Check to ensure Advanced licencing has been applied.
 advStatus = ["Available", "AlreadyInitialized"]
@@ -115,7 +129,7 @@ def main():
     Function that prepares variables and data, checks for errors in the data, and
     runs the universal overlap and automated status tools
     '''
-    message = "Now Running " + str(sys.argv[0])
+    message = "Batch Ast V2 - Now Running " + str(sys.argv[0])
     arcpy.AddMessage(message)
 
 
@@ -165,7 +179,7 @@ def main():
     geodatabase if the dont_overwrite_outputs != True
     '''
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("   Checking existence of GDB")
+    arcpy.AddMessage("Batch Ast V2 -    Checking existence of GDB")
     #specify output folder and gdb to store the input spatial depending
     #on parameters set by user in tool parameters.
     gdb_name = "aoi_boundary.gdb"
@@ -199,21 +213,21 @@ def main():
 
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("Checking BCGW Credentials - may take a minute to process...")
+    arcpy.AddMessage("Batch Ast V2 - Checking BCGW Credentials - may take a minute to process...")
 
-    #set the key name that will be used for storing credentials in keyring
-    key_name = config.CONNNAME
-    try:
-        oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
-        #get sde path location
-        if not oracleCreds.check_credentials():
-            arcpy.AddError("BCGW credentials could not be established.")
-            sys.exit()
-        sde = os.getenv("SDE_FILE_PATH")
+    # #set the key name that will be used for storing credentials in keyring
+    # key_name = config.CONNNAME
+    # try:
+    #     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
+    #     #get sde path location
+    #     if not oracleCreds.check_credentials():
+    #         arcpy.AddError("BCGW credentials could not be established.")
+    #         sys.exit()
+    #     sde = os.getenv("SDE_FILE_PATH")
 
-    except Exception as e:
-        arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
-        sys.exit()
+    # except Exception as e:
+    #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
+    #     sys.exit()
 
     #Check RAAD connection
     raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")
@@ -223,7 +237,7 @@ def main():
         arcpy.AddWarning(f"Unable to connect to RAAD data")
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("Running Validation")
+    arcpy.AddMessage("Batch Ast V2 - Running Validation")
 
     # Check for selection in feature layer
     # number of features passed through feature layer (selection, if one exisits)
@@ -554,13 +568,14 @@ def main():
         arcpy.AddMessage("{}".format(part3_xlsx))
         arcpy.AddMessage(".")
         arcpy.AddMessage(".")
+#NOTE removed the deletion of the .sde file
 
     #cleanup temporary sde file
-    try:
-        shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
-        del os.environ["SDE_FILE_PATH"]
-    except Exception as e:
-        pass
+    # try:
+    #     shutil.rmtree(os.path.dirname(os.path.abspath(os.getenv("SDE_FILE_PATH"))))
+    #     del os.environ["SDE_FILE_PATH"]
+    # except Exception as e:
+    #     pass
     
 
 #___________________________________________________________________________

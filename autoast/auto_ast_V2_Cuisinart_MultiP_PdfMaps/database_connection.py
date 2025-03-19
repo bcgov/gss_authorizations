@@ -58,18 +58,24 @@ def setup_bcgw(logger):
                                                         'DATABASE_AUTH',
                                                         DB_USER,
                                                         DB_PASS,
-                                                        'DO_NOT_SAVE_USERNAME')
+                                                        'SAVE_USERNAME')
+    
+    #NOTE - Changed save username from do not save to save username
 
     print("new db connection created")
     logger.info("new db connection created")
 
 
     arcpy.env.workspace = bcgw_con.getOutput(0)
+    
+    sde_path = os.path.join(connection_folder, 'bcgw.sde')
 
     print("workspace set to bcgw connection")
     logger.info("workspace set to bcgw connection")
     
     secrets = [DB_USER, DB_PASS]
+    sde_connection = arcpy.env.workspace
     
-    return secrets
+    return secrets, sde_connection, sde_path
+
 ###############################################################################################################################################################################

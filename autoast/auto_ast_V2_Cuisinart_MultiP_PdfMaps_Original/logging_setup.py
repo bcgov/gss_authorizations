@@ -8,14 +8,8 @@ import logging
 
 def setup_logging():
     ''' Set up logging for the script '''
-    
-    # Create the current path to hold the log folder
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    
-    
     # Create the log folder filename
-    log_folder = os.path.join(current_path, f'autoast_batch_logs_folder_{datetime.datetime.now().strftime("%Y%m%d")}')
-    # log_folder = f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}'
+    log_folder = f'autoast_logs_{datetime.datetime.now().strftime("%Y%m%d")}'
 
     # Create the log folder in the current directory if it doesn't exits
     if not os.path.exists(log_folder):
@@ -25,7 +19,7 @@ def setup_logging():
     assert os.path.exists(log_folder), "Error creating log folder, check permissions and path"
 
     # Create the log file path with the date and time appended
-    log_file = os.path.join(log_folder, f'ast_batch_log_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    log_file = os.path.join(log_folder, f'ast_log_{datetime.datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
 
 
 

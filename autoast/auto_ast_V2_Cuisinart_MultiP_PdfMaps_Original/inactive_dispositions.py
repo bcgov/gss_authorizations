@@ -3,30 +3,10 @@ import pyodbc
 import pandas as pd
 import arcpy
 from tantalis_bigQuery import load_sql
-import sys
-from dotenv import load_dotenv
 
 import config
 
-print("Getting SDE File Path from os.getenv")
 
-#EDIT - get the SDE file path from the environment variable
-sde = os.getenv("SDE_FILE_PATH")
-
-if not sde or not os.path.exists(sde):
-    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
-    sys.exit()
-# Verify it works
-print("Database User Found")
-
-# connection = sde
-# print(f"Inside inactive_dispositions.py - Connection: {connection}")
-
-# Assign secret file data to variables    
-username = os.getenv('BCGW_USER')
-password = os.getenv('BCGW_PASS')
-
-#EDIT - commented out the connection to the SDE
 def connect_to_DB (driver,server,port,dbq, username,password):
     """ Returns a connection to Oracle database"""
     try:
@@ -168,17 +148,15 @@ def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
 
 if __name__=="__main__":
 
-    # bcgw_user = ''
-    # bcgw_pwd = ''
-    bcgw_user = username
-    bcgw_pwd = password 
+    bcgw_user = ''
+    bcgw_pwd = ''
 
     aoi = ''
     #aoi = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\test_runs\test_moez\one_status_tabs_1_and_2_datasets.gdb\aoi"
     #aoi = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\test_files\TEST_district.shp"
     
     print ('Retrieving the parcels list')
-    # sde = r"h:\arcpro\bcgw.sde"
+    sde = r"h:\arcpro\bcgw.sde"
     parcel_fc = os.path.join(sde, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
     clip_parcel = arcpy.Clip_analysis(parcel_fc, aoi, r"memory\parcel_clip")
     result = int(arcpy.GetCount_management(clip_parcel).getOutput(0))

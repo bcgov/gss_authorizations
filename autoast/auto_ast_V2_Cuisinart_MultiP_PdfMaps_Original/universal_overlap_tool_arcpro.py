@@ -36,7 +36,6 @@ Modification:
 '----------------------------------------------------------------------------------'
 
 ''' 
-from json import load
 import sys, os, time, datetime, arcpy, csv, runpy, shutil
 from pathlib import Path
 import openpyxl
@@ -47,25 +46,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.styles import PatternFill
 from openpyxl.styles import Border, Side
-from dotenv import load_dotenv
-
-
-
-
-#NOTE imported the dotenv secrets
-# Get the secret file containing the database credentials
-SECRET_FILE = os.getenv('SECRET_FILE')
-
-# If secret file found, load the secret file and display a print message, if not found display an error message
-if SECRET_FILE:
-    load_dotenv(SECRET_FILE)
-    print(f"Inside UOT....Secret file {SECRET_FILE} found")
-    
-    #EDIT added dotenv a second time
-    # Assign secret file data to variables    
-    username = os.getenv('BCGW_USER')
-    password = os.getenv('BCGW_PASS')
-
 
 # from fc_to_html import HTMLGenerator
 
@@ -136,7 +116,7 @@ class revolt_tool(object):
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Universal Overlap Tool finished running')
+        arcpy.AddMessage('Batch Ast V2 - Universal Overlap Tool finished running')
 
         EndTime = time.perf_counter()
         TotalRunTimeStr = "Total Run Time is " + str(int(EndTime - StartTime))
@@ -464,7 +444,7 @@ class revolt_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Batch Ast V2 - Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage("    Creating the raw AOI ")
@@ -585,6 +565,9 @@ class revolt_tool(object):
         '''
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage('Clipping the input datasets to the AOI')
+        #NOTE explicitly set the workspace immediately before making feature layers from .sde files.
+        arcpy.env.workspace = self.sde_connection
+        arcpy.AddMessage(f"Workspace set to: {arcpy.env.workspace}")
  
         the_aoi = os.path.join(self.work_gdb, "aoi")
  

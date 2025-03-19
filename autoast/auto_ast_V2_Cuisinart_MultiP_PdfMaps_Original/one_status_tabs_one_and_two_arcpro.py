@@ -36,20 +36,12 @@ import keyring
 from openpyxl import Workbook   #@UnusedImport
 from openpyxl.styles import Alignment, NamedStyle, Font, Fill, PatternFill, colors, Color #Border, Side #@UnusedImport
 from openpyxl.styles.borders import Border, Side
-from dotenv import load_dotenv
+
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\beta')
-# sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
-sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_V2_Cuisinart_MultiP_PdfMaps')
+sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 import universal_overlap_tool_arcpro as revolt
 import inactive_dispositions as inactives
 import config
-#EDIT - added dotenv
-from dotenv import load_dotenv
-
-# Assign secret file data to variables    
-DB_USER = os.getenv('BCGW_USER')
-DB_PASS = os.getenv('BCGW_PASS')
-
 
 #------------------------------------------------------------------------------ 
 arcpy.env.overwriteOutput = True
@@ -63,7 +55,7 @@ class one_status_part2_tool(object):
 
     def run_tool(self, passed_input_list):
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage("Batch Ast V2 - running the one status part 2 tool")
+        arcpy.AddMessage("running the one status part 2 tool")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("Passed Inputs:")
         i = 0
@@ -165,7 +157,7 @@ class one_status_part2_tool(object):
         
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Batch Ast V2 - Creating working directories, geodatabases, variables')
+        arcpy.AddMessage('Creating working directories, geodatabases, variables')
 
 
         #this is the default directory for where the input XLS files are stored (p:)
@@ -239,7 +231,7 @@ class one_status_part2_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Batch Ast V2 - Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage(".   Creating the raw AOI ")
@@ -299,22 +291,6 @@ class one_status_part2_tool(object):
         '''
         retrieves a list of inactive tenures to be used in reporting
         '''
-                #NOTE imported the dotenv secrets
-        # Get the secret file containing the database credentials
-        SECRET_FILE = os.getenv('SECRET_FILE')
-
-        # If secret file found, load the secret file and display a print message, if not found display an error message
-        if SECRET_FILE:
-            load_dotenv(SECRET_FILE)
-            print(f"Secret file {SECRET_FILE} found")
-            
-            #EDIT added dotenv a second time
-            # Assign secret file data to variables    
-            username = os.getenv('BCGW_USER')
-            password = os.getenv('BCGW_PASS')
-
-        else:
-            print("Secret file not found")
         
         print ('Retrieving the parcels list')
         parcel_fc = os.path.join(self.sde_connection, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
@@ -324,19 +300,17 @@ class one_status_part2_tool(object):
         if result > 0:
             parcel_list = [row[0] for row in arcpy.da.SearchCursor(clip_parcel,['INTRID_SID'])]
             print(len(parcel_list))
-        
-            #NOTE: Commented out. Username and password brought it from dotenv import
 
-            # #get credentials from keyring
-            # key_name = config.CONNNAME
-            # try:
-            #     credentials = keyring.get_credential(key_name, "")
-            #     username = credentials.username
-            #     password = credentials.password
-            # except Exception as e:
-            #     print(e)
-            #     arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
-            #     return
+            #get credentials from keyring
+            key_name = config.CONNNAME
+            try:
+                credentials = keyring.get_credential(key_name, "")
+                username = credentials.username
+                password = credentials.password
+            except Exception as e:
+                print(e)
+                arcpy.AddWarning("Unable to generate TAB2: Credentials not available in keyring.")
+                return
             #arcpy.AddMessage(f"username: {username} password: {password}")
             #pass credentials to get Oracle driver and then retrieve the list of inactive crown tenures.
 

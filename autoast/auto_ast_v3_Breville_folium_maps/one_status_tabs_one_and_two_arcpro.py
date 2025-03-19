@@ -80,7 +80,7 @@ class one_status_part2_tool(object):
 
     def run_tool(self, passed_input_list):
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage("TEST 4  - running the one status part 2 tool")
+        arcpy.AddMessage("Batch Ast V3 - running the one status part 2 tool")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("Passed Inputs:")
         i = 0
@@ -182,7 +182,7 @@ class one_status_part2_tool(object):
         
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Creating working directories, geodatabases, variables')
+        arcpy.AddMessage('Batch Ast V3 - Creating working directories, geodatabases, variables')
 
 
         #this is the default directory for where the input XLS files are stored (p:)
@@ -256,7 +256,7 @@ class one_status_part2_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Batch Ast V3 - Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage(".   Creating the raw AOI ")

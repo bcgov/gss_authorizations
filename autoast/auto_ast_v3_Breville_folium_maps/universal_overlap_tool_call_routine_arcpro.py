@@ -52,8 +52,8 @@ import sys, string, os, time, datetime, arcpy, csv, subprocess, keyring
 
 #stop
 message = "Now Running " + str(sys.argv[0])
-
 #EDIT changed the path to the statusing tool to the new location
+
 # import the statusing tool
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\alpha')
 sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps')
@@ -232,9 +232,6 @@ key_name = config.CONNNAME
 # except Exception as e:
 #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
 #     sys.exit()
-
-
-
 
 #Check RAAD connection
 raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")

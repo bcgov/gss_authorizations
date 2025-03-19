@@ -42,29 +42,30 @@ template = os.getenv('TEMPLATE') # File path in .env
 
 def build_aoi_from_kml(aoi, logger):
         "Write shp file for temporary use"
-
+        
+        print("Building AOI from KML")
+        print(f"Checking if KML file exists: {aoi}")
+        
         # Ensure the KML file exists
         if not os.path.exists(aoi):
             raise FileNotFoundError(f"The KML file '{aoi}' does not exist.")
-
-        print("Building AOI from KML")
-        logger.info("Building AOI from KML")
+        
         from fiona.drvsupport import supported_drivers
         supported_drivers['LIBKML'] = 'rw'
         tmp = os.getenv('TEMP')
         if not tmp:
-            raise EnvironmentError("TEMP environment variable is not set.")
+            raise EnvironmentError("Error: TEMP environment variable is not set.")
         bname = os.path.basename(aoi).split('.')[0]
+        fc = bname.replace(' ','_')
+        out_name = os.path.join(tmp,bname+'.gdb')
         fc = bname.replace(' ', '_')
         out_name = os.path.join(tmp, bname + '.gdb')
         if os.path.exists(out_name):
+            shutil.rmtree(out_name,ignore_errors=True)
             shutil.rmtree(out_name, ignore_errors=True)
         df = geopandas.read_file(aoi)
+        df.to_file(out_name,layer=fc,driver='OpenFileGDB')
         df.to_file(out_name, layer=fc, driver='OpenFileGDB')
-
-        #DELETE?
-        print(f' kml ouput is {out_name} / {fc}')
-        logger.info(f' kml ouput is {out_name} / {fc}')
         return out_name + '/' + fc
 
 

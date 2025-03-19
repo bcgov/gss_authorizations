@@ -96,8 +96,6 @@ import one_status_tabs_one_and_two_arcpro as one_status_part2
 import config
 from logging_setup import setup_logging
 
-
-
 print("Getting SDE File Path from os.getenv")
 
 #EDIT - get the SDE file path from the environment variable
@@ -112,50 +110,12 @@ print("Database User Found")
 
 
 
-
-
-
-
-# Call the setup_logging function to log the messages
-# logger = setup_logging()
-
-
-# from database_connection import setup_bcgw
-
-# Call the function to get secrets and the sde connection path
-# secrets, sde_connection, sde_path = setup_bcgw(logger)
-
-# DB_USER, DB_PASS = secrets 
-# sde = sde_connection
-# s_path = sde_path
-
-
-
-
-
-
-
-# print("SDE Connection:", s_path)
-# arcpy.env.workspace = bcgw_sde_path
-
-
-
-
-# # arcpy.env.workspace = secrets.getOutput(0)
-# print(f"Workspace set to bcgw connection: {arcpy.env.workspace}")
-# # sde = secrets.getOutput(0)
-# print(f"sde: {sde}")
-
-
-
-
-
 #___________________________________________________________________________
 
 ## Process ##
 #Check to ensure Advanced licencing has been applied.
 arcpy.AddMessage("======================================================================")
-arcpy.AddMessage("TEST 4 -  Checking for ArcGIS Pro Advanced license _TEST")
+arcpy.AddMessage("Batch Ast V3 --  Checking for ArcGIS Pro Advanced license _TEST")
 
 #Check to ensure Advanced licencing has been applied.
 advStatus = ["Available", "AlreadyInitialized"]
@@ -172,7 +132,7 @@ def main():
     Function that prepares variables and data, checks for errors in the data, and
     runs the universal overlap and automated status tools
     '''
-    message = "TEST!  - Now Running " + str(sys.argv[0])
+    message = "Batch Ast V3 - Now Running " + str(sys.argv[0])
     arcpy.AddMessage(message)
 
 
@@ -222,7 +182,7 @@ def main():
     geodatabase if the dont_overwrite_outputs != True
     '''
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage(" TEST3  Checking existence of GDB")
+    arcpy.AddMessage("atch Ast V3 -  Checking existence of GDB")
     #specify output folder and gdb to store the input spatial depending
     #on parameters set by user in tool parameters.
     gdb_name = "aoi_boundary.gdb"
@@ -256,21 +216,21 @@ def main():
 
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("TEST 4 Checking BCGW Credentials - may take a minute to process...")
+    arcpy.AddMessage("Batch Ast V3 - Checking BCGW Credentials - may take a minute to process...")
 
-                        # #set the key name that will be used for storing credentials in keyring
-                        # key_name = config.CONNNAME
-                        # try:
-                        #     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
-                        #     #get sde path location
-                        #     if not oracleCreds.check_credentials():
-                        #         arcpy.AddError("BCGW credentials could not be established.")
-                        #         sys.exit()
-                        #     sde = os.getenv("SDE_FILE_PATH")
+    # #set the key name that will be used for storing credentials in keyring
+    # key_name = config.CONNNAME
+    # try:
+    #     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
+    #     #get sde path location
+    #     if not oracleCreds.check_credentials():
+    #         arcpy.AddError("BCGW credentials could not be established.")
+    #         sys.exit()
+    #     sde = os.getenv("SDE_FILE_PATH")
 
-                        # except Exception as e:
-                        #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
-                        #     sys.exit()
+    # except Exception as e:
+    #     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
+    #     sys.exit()
 
     #Check RAAD connection
     raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")
@@ -280,7 +240,7 @@ def main():
         arcpy.AddWarning(f"Unable to connect to RAAD data")
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("Running Validation")
+    arcpy.AddMessage("Ratch Ast V3 -unning Validation")
 
     # Check for selection in feature layer
     # number of features passed through feature layer (selection, if one exisits)

@@ -166,37 +166,13 @@ def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
     ilrr_info = get_inact_info(df_inact_lands)
 
     return ilrr_info
-# - changed the function signature to accept the SDE file path
-# def execute_process(parcel_list):
-#     """Generates a csv of inactive Lands dispositions"""
-    
-#     print('TEST 4 - Inside Execute_Process in inactive dispoitions.py ......Connecting to BCGW.')
-#     # driver = oracle_driv #'Oracle in OraClient12Home2'
-#     # server = config.CONNSERVER
-#     # port = config.CONNPORT
-#     # dbq = config.CONNDBQ
-#     # hostname = config.CONNINSTANCE
 
-#     connection = sde
-    
-#     print ('Loading SQL queries.')
-#     sql = load_sql()
-    
-#     print ('Execute the query.')
-#     parcels_q_str = format_parcels_list(parcel_list)
-
-#     query = sql['inactive_lands'].format(prcl=parcels_q_str)# add the parcels list to the SQL query
-
-#     df_inact_lands = read_query(connection,query) #execute the query and store results in a dataframe
-
-#     print ('Retrieve Inactive info.')
-#     ilrr_info = get_inact_info(df_inact_lands)
-
-#     return ilrr_info
 
 
 if __name__=="__main__":
-
+#NOTE: Can this be removed? need to test
+    # bcgw_user = ''
+    # bcgw_pwd = ''
     bcgw_user = username
     bcgw_pwd = password 
 
@@ -209,7 +185,7 @@ if __name__=="__main__":
     
     # sde = r"h:\arcpro\bcgw.sde"
     
-    print("Inside main of inactive_dispositions.py")
+
     parcel_fc = os.path.join(sde, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
     clip_parcel = arcpy.Clip_analysis(parcel_fc, aoi, r"memory\parcel_clip")
     result = int(arcpy.GetCount_management(clip_parcel).getOutput(0))
@@ -218,9 +194,9 @@ if __name__=="__main__":
         parcel_list = [row[0] for row in arcpy.da.SearchCursor(clip_parcel,['INTRID_SID'])]
         print(len(parcel_list))
         drvr = get_oracle_driver()
-        #EDIT - Execute Process Called
+
         ilrr = execute_process(parcel_list,bcgw_user,bcgw_pwd,drvr)
-        # ilrr = execute_process(parcel_list,sde)
+
         print(ilrr)
 
     else:

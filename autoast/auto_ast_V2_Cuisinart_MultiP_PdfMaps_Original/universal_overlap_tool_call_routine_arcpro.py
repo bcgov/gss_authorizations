@@ -52,28 +52,13 @@ import sys, string, os, time, datetime, arcpy, csv, subprocess, keyring
 
 #stop
 message = "Now Running " + str(sys.argv[0])
-#EDIT changed the path to the statusing tool to the new location
 
 # import the statusing tool
 # sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\beta')
-sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_V2_Cuisinart_MultiP_PdfMaps')
+sys.path.append(r'\\GISWHSE.ENV.GOV.BC.CA\WHSE_NP\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\Scripts')
 import universal_overlap_tool_arcpro as revolt
-# import create_bcgw_sde_connection as connect_bcgw
+import create_bcgw_sde_connection as connect_bcgw
 import config
-
-print("Getting SDE File Path from os.getenv")
-
-#EDIT - get the SDE file path from the environment variable
-sde = os.getenv("SDE_FILE_PATH")
-
-if not sde or not os.path.exists(sde):
-    arcpy.AddError("SDE connection file not found or not accessible. Check environment variable 'SDE_FILE_PATH'.")
-    sys.exit()
-# Verify it works
-print("Database User Found")
-
-
-
 
 #------------------------------------------------------------------------------ 
 arcpy.AddMessage("======================================================================")
@@ -220,18 +205,18 @@ arcpy.AddMessage("Checking BCGW Credentials - may take a minute to process...")
 
 #set the key name that will be used for storing credentials in keyring
 key_name = config.CONNNAME
-# try:
-#     oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
-#     #get sde path location
-#     if not oracleCreds.check_credentials():
-#         arcpy.AddError("BCGW credentials could not be established.")
-#         sys.exit()
-#     sde = os.getenv("SDE_FILE_PATH")
-#     arcpy.AddMessage(f"sde file location: {sde}")
+try:
+    oracleCreds = connect_bcgw.ManageCredentials(key_name, directory_to_store_output)
+    #get sde path location
+    if not oracleCreds.check_credentials():
+        arcpy.AddError("BCGW credentials could not be established.")
+        sys.exit()
+    sde = os.getenv("SDE_FILE_PATH")
+    arcpy.AddMessage(f"sde file location: {sde}")
 
-# except Exception as e:
-#     arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
-#     sys.exit()
+except Exception as e:
+    arcpy.AddError(f"Failure occurred when establishing BCGW connection - {e}. Please try again.")
+    sys.exit()
 
 #Check RAAD connection
 raad = os.path.join(sde, "WHSE_ARCHAEOLOGY.RAAD_TFM_SITE")
