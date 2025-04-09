@@ -50,7 +50,6 @@ from dotenv import load_dotenv
 DB_USER = os.getenv('BCGW_USER')
 DB_PASS = os.getenv('BCGW_PASS')
 
-
 #------------------------------------------------------------------------------ 
 arcpy.env.overwriteOutput = True
 
@@ -299,7 +298,7 @@ class one_status_part2_tool(object):
         '''
         retrieves a list of inactive tenures to be used in reporting
         '''
-                #NOTE imported the dotenv secrets
+        #NOTE imported the dotenv secrets
         # Get the secret file containing the database credentials
         SECRET_FILE = os.getenv('SECRET_FILE')
 
@@ -315,7 +314,6 @@ class one_status_part2_tool(object):
 
         else:
             print("Secret file not found")
-        
         print ('Retrieving the parcels list')
         parcel_fc = os.path.join(self.sde_connection, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
         clip_parcel = arcpy.Clip_analysis(parcel_fc, self.analyize_this_featureclass, r"memory\parcel_clip")

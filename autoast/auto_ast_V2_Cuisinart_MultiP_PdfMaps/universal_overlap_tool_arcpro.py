@@ -65,7 +65,7 @@ if SECRET_FILE:
     # Assign secret file data to variables    
     username = os.getenv('BCGW_USER')
     password = os.getenv('BCGW_PASS')
-
+    print("Inside UoT arcpro - BCGW_USER and BCGW_PASS loaded from")
 
 # from fc_to_html import HTMLGenerator
 
@@ -136,7 +136,7 @@ class revolt_tool(object):
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Universal Overlap Tool finished running')
+        arcpy.AddMessage('Batch Ast V2 - Universal Overlap Tool finished running')
 
         EndTime = time.perf_counter()
         TotalRunTimeStr = "Total Run Time is " + str(int(EndTime - StartTime))
@@ -403,7 +403,7 @@ class revolt_tool(object):
             username = os.getenv('username')
             tmpDir = r"T:\StatusMaps_" + username
             template = r"\\Giswhse.env.gov.bc.ca\whse_np\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\map_files\dev_template.aprx"
-
+            print("inside create_set_aprx - username: ", username)
             if not os.path.exists(tmpDir):
                 os.mkdir(tmpDir)
             counter = 0
@@ -464,7 +464,7 @@ class revolt_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Batch Ast V2 - Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage("    Creating the raw AOI ")
@@ -585,7 +585,9 @@ class revolt_tool(object):
         '''
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage('Clipping the input datasets to the AOI')
- 
+        #NOTE explicitly set the workspace immediately before making feature layers from .sde files.
+        arcpy.env.workspace = self.sde_connection
+        arcpy.AddMessage(f"Workspace set to: {arcpy.env.workspace}")
         the_aoi = os.path.join(self.work_gdb, "aoi")
  
         # buffer the aoi at the values in the input spreadsheet, and set x[rpt_aoi_for_clip] field to the value to clip input data to

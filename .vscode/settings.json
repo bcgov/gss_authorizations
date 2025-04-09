@@ -1,4 +1,7 @@
 {
     "python.analysis.autoImportCompletions": true,
-    "cSpell.enabled": false
+    "cSpell.enabled": false,
+    "python.analysis.extraPaths": [
+        "./autoast/auto_ast_V2_Cuisinart_MultiP_PdfMaps"
+    ]
 }

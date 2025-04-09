@@ -91,8 +91,7 @@ sys.path.append(r'\\spatialfiles.bcgov\work\srm\nel\Local\Geomatics\Workarea\cso
 
 import universal_overlap_tool_arcpro as revolt #@UnresolvedImport
 import one_status_tabs_one_and_two_arcpro as one_status_part2
-
-#import create_bcgw_sde_connection as connect_bcgw
+# import create_bcgw_sde_connection as connect_bcgw
 import config
 from logging_setup import setup_logging
 
@@ -106,8 +105,6 @@ if not sde or not os.path.exists(sde):
     sys.exit()
 # Verify it works
 print("Database User Found")
-
-
 
 
 #___________________________________________________________________________
@@ -182,7 +179,7 @@ def main():
     geodatabase if the dont_overwrite_outputs != True
     '''
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("atch Ast V3 -  Checking existence of GDB")
+    arcpy.AddMessage("Batch Ast V3 -  Checking existence of GDB")
     #specify output folder and gdb to store the input spatial depending
     #on parameters set by user in tool parameters.
     gdb_name = "aoi_boundary.gdb"
@@ -240,7 +237,7 @@ def main():
         arcpy.AddWarning(f"Unable to connect to RAAD data")
 
     arcpy.AddMessage("======================================================================")
-    arcpy.AddMessage("Ratch Ast V3 -unning Validation")
+    arcpy.AddMessage("Ratch Ast V3 -Running Validation")
 
     # Check for selection in feature layer
     # number of features passed through feature layer (selection, if one exisits)
@@ -571,7 +568,6 @@ def main():
         arcpy.AddMessage("{}".format(part3_xlsx))
         arcpy.AddMessage(".")
         arcpy.AddMessage(".")
-
 #NOTE removed the deletion of the .sde file
 
     #cleanup temporary sde file

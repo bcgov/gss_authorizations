@@ -23,10 +23,11 @@ from database_connection import setup_bcgw
 from toolbox_import import import_ast
 from ast_factory import AST_FACTORY
 
+# snippet to run multiple terminal windows & "P:\corp\python_ast\python.exe" "W:\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps\main.py"
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'gr_2025_26_jobs.xlsx'
+excel_file = 'jobs_template.xlsx'
 
 
 

@@ -137,7 +137,7 @@ def get_oracle_driver():
         arcpy.AddWarning("TAB2 could not be generated. Oracle drivers do not exist on the GTS. Please contact geospatialservices.waterland@gov.bc.ca for support")
         return
 
-
+#EDIT Execute Process Function
 def execute_process(parcel_list,bcgw_user,bcgw_pwd,oracle_driv):
     """Generates a csv of inactive Lands dispositions"""
     
@@ -178,7 +178,11 @@ if __name__=="__main__":
     #aoi = r"\\spatialfiles.bcgov\work\srm\wml\Workarea\arcproj\!Williams_Lake_Toolbox_Development\automated_status_ARCPRO\steve\test_files\TEST_district.shp"
     
     print ('Retrieving the parcels list')
+    
+    
     # sde = r"h:\arcpro\bcgw.sde"
+    
+
     parcel_fc = os.path.join(sde, r'WHSE_TANTALIS.TA_INTEREST_PARCEL_SHAPES')
     clip_parcel = arcpy.Clip_analysis(parcel_fc, aoi, r"memory\parcel_clip")
     result = int(arcpy.GetCount_management(clip_parcel).getOutput(0))
