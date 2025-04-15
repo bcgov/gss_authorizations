@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the Excel file
-excel_path = r"\\spatialfiles.bcgov\srm\gss\projects\gr_2025_82_windfarms\documents\AGO\AGOL Layers Dictionary.xlsx"  # Replace with your file path
+excel_path = r"\\spatialfiles.bcgov\srm\gss\projects\gr_2025_82_windfarms\documents\AGO\AGOL Layers Dictionary v2.xlsx"  # Replace with your file path
 xl = pd.ExcelFile(excel_path)
 
 # Read both sheets into DataFrames

@@ -1,0 +1,160 @@
+"todo-tree.general.tags": [
+    "BUG",
+    "HACK",
+    "FIXME",
+    "TODO",
+    "JUMP TO",
+    "[ ]",
+    "ADD JOB RESULT",
+    "NOTE",
+    "BATCH AST",
+    "IMPROVE",
+    "CLEANUP",
+    "LOAD JOBS",
+    "DELETE",
+    "RELOAD JOBS",
+    "UPDATE VARIABLE",
+    "UPDATE",
+    "COMSMENT",
+    "RECHECK",
+    "INCOMPLETE",
+    "SEE NOTES",
+    "FUNCTION",
+    "CHECK",
+    "COMMENT"
+
+],
+"todo-tree.highlights.customHighlight": {
+
+    "TODO": {
+        "icon": "checkbox",
+        "foreground": "black",
+        "background": "yellow",
+        "iconColour": "yellow"
+      },
+      "NOTE": {
+        "icon": "note",
+        "foreground": "white",
+        "background": "cornflowerblue",
+        "iconColour": "cornflowerblue"
+      },
+      "USEFUL": {
+        "icon": "verified",
+        "foreground": "black",
+        "background": "mediumaquamarine",
+        "iconColour": "mediumaquamarine"
+      },
+      "COMMENT": {
+        "icon": "comment",
+        "foreground": "white",
+        "background": "gray",
+        "iconColour": "white"
+      },
+      "LEARN": {
+        "icon": "bookmark",
+        "foreground": "white",
+        "background": "hotpink",
+        "iconColour": "hotpink"
+      },
+      "FIXME": {
+        "icon": "tools",
+        "foreground": "crimson",
+        "background": "burlywood",
+        "iconColour": "burlywood"
+      },
+      "RECHECK": {
+        "icon": "codescan",
+        "foreground": "white",
+        "background": "chocolate",
+        "iconColour": "chocolate"
+      },
+      "INCOMPLETE": {
+        "icon": "alert",
+        "foreground": "white",
+        "background": "mediumvioletred",
+        "iconColour": "mediumvioletred"
+      },
+      "BUG": {
+        "icon": "bug",
+        "foreground": "white",
+        "background": "crimson",
+        "iconColour": "crimson"
+      },
+      "SEE NOTES": {
+        "icon": "note",
+        "foreground": "white",
+        "background": "teal",
+        "iconColour": "teal"
+      },
+      "POST": {
+        "icon": "share",
+        "foreground": "white",
+        "background": "green",
+        "iconColour": "green"
+      },
+      "[ ]": {
+        "icon": "check",
+        "foreground": "black",
+        "background": "white",
+        "iconColour": "yellow"
+      },
+      "[x]": {
+        "icon": "check",
+        "foreground": "white",
+        "background": "green",
+        "iconColour": "green"
+      },
+      "UPDATE": {
+        "icon": "share",
+        "foreground": "white",
+        "background": "green",
+        "iconColour": "green"
+      },
+      "UPDATE VARIABLE": {
+        "icon": "share",
+        "foreground": "black",
+        "background": "yellow",
+        "iconColour": "yellow"
+      },
+    },
+"todo-tree.highlights.defaultHighlight": {
+    
+
+
+
+},
+"todo-tree.highlights.backgroundColourScheme": [
+    "orange",
+    "violet",
+    "red",
+    "lime",
+    "blue",
+    "indigo",
+    "violet",
+    "green",
+    "red",
+    "grey",
+    "purple",
+    "green"
+],
+"todo-tree.tree.showCountsInTree": true,
+"todo-tree.general.showActivityBarBadge": true,
+"todo-tree.highlights.foregroundColourScheme": [
+    "white",
+    "white",
+    "black",
+    "black",
+    "white",
+    "white",
+    "white",
+    "black",
+    "green"
+],
+"todo-tree.highlights.useColourScheme": true,
+"githubPullRequests.createOnPublishBranch": "never",
+"terminal.integrated.inheritEnv": false,
+"editor.accessibilitySupport": "off",
+"sqldeveloper.telemetry.enabled": true,
+"todo-tree.general.tagGroups": {
+
+},
