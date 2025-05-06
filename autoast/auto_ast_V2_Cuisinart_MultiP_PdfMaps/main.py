@@ -27,7 +27,7 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'Windfarm_Projects_Nithi.xlsx'
+excel_file = 'Windfarm_Projects_v2.xlsx'
 
 
 
