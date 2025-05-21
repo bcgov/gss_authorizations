@@ -6,7 +6,9 @@ from tkinter.filedialog import askdirectory
 def change_hyperlinks_in_directory():
     """
     Updates hyperlinks in all Excel workbooks within a directory and its subdirectories to use relative paths.
-    Prompts the user to select the directory containing multiple AST tool output folders.
+    Prompts the user to select the directory containing multiple AST tool output folders. Handles unusual UNC paths such as \\DEGREE\gss$\
+        or \\SPATIALFILES.... by removing everything before maps and then changing the path to relative.
+    Changes /maps/Crossed_by_River_or_Creek_TRIM.pdf to  maps\Crossed_by_River_or_Creek_TRIM.pdf
     """
     # Prompt user to select the directory
     Tk().withdraw()  # Hide the root Tkinter window
@@ -68,21 +70,20 @@ def change_hyperlinks_in_directory():
 
                                 print(f"Found hyperlink: {abs_path}")
 
-                                # Normalize the paths for comparison
-                                normalized_maps_folder = os.path.normpath(maps_folder).lower()
-                                normalized_abs_path = os.path.normpath(abs_path).lower()
-
-                                # Check if the hyperlink points to the maps folder
-                                if normalized_abs_path.startswith(normalized_maps_folder):
-                                    # Convert the absolute path to a relative path
-                                    rel_path = os.path.relpath(abs_path, start=root)
+                                # Simplify the logic: Cut off everything before '/maps' or '\maps'
+                                maps_index = abs_path.lower().find("/maps")
+                                if maps_index == -1:
+                                    maps_index = abs_path.lower().find("\\maps")
+                                if maps_index != -1:
+                                    # Extract the relative path starting from '/maps' or '\maps'
+                                    rel_path = abs_path[maps_index:].replace("/", "\\").lstrip("\\")  # Normalize to backslashes and remove leading backslash
                                     print(f"Converting to relative path: {rel_path}")
 
                                     # Update the hyperlink to use the relative path
                                     cell.hyperlink = rel_path
                                     all_links_relative = False
                                 else:
-                                    print(f"Hyperlink does not point to maps folder: {abs_path}")
+                                    print(f"Hyperlink does not contain '/maps' or '\\maps': {abs_path}")
 
                 # If all links were already relative, print a message and skip saving
                 if all_links_relative:
