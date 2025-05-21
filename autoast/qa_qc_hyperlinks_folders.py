@@ -6,8 +6,8 @@ from tkinter.filedialog import askdirectory
 def generate_hyperlink_report():
     """
     Walks through a directory of AST tool outputs, checks hyperlinks in all Excel spreadsheets, and generates a report.
-    The report includes the parent folder name, workbook name, whether a maps folder exists, whether hyperlinks are fixed,
-    and a sample of hyperlinks.
+    The report includes the parent folder name, workbook name, sheet name, whether a maps folder exists, whether hyperlinks are fixed,
+    a sample of hyperlinks, and the "Status Run By / Date" field from automated_status_sheet.xlsx.
     """
     # Prompt user to select the directory
     Tk().withdraw()  # Hide the root Tkinter window
@@ -22,7 +22,17 @@ def generate_hyperlink_report():
     report_wb = Workbook()
     report_ws = report_wb.active
     report_ws.title = "Hyperlink Report"
-    report_ws.append(["Output Folder Name", "Workbook Name", "Maps Folder", "Hyperlinks Fixed (Yes/No)", "Sample Hyperlinks"])
+    
+    # Initialize the report header
+    report_ws.append([
+        "Output Folder Name",
+        "Workbook Name",
+        "Sheet Name",  # Add the sheet name column
+        "Status Run By / Date",  # Add the new column
+        "Maps Folder",
+        "Hyperlinks Fixed (Yes/No)",
+        "Sample Hyperlinks"
+    ])
 
     # Walk through all folders and subfolders
     for root, dirs, files in os.walk(base_directory):
@@ -53,6 +63,25 @@ def generate_hyperlink_report():
                     print(f"Error loading workbook {workbook_name}: {e}")
                     continue
 
+                # Extract "Status Run By / Date" from automated_status_sheet.xlsx
+                status_run_by_date = "N/A"  # Default value if not found
+                if workbook_name.lower() == "automated_status_sheet.xlsx":  # Case-insensitive check for the workbook name
+                    try:
+                        # Access the first sheet (Crown Land Status)
+                        sheet1 = wb["Crown Land Status"]
+
+                        # Get the value of cell B10
+                        cell_value = sheet1["B10"].value
+
+                        # Print the value
+                        print(f"The value of cell B10 is: {cell_value}")
+
+                        # Assign the value to the "Status Run By / Date" field
+                        status_run_by_date = cell_value if cell_value else "N/A"
+
+                    except Exception as e:
+                        print(f"Error reading 'Status Run By / Date' from {workbook_name}: {e}")
+        
                 # Check hyperlinks in the workbook
                 hyperlinks_fixed = True
                 has_hyperlinks = False  # Track if any hyperlinks are found
@@ -69,32 +98,33 @@ def generate_hyperlink_report():
                                     print(f"Warning: Invalid hyperlink found in {workbook_name}, sheet {sheet}. Skipping.")
                                     continue
 
-                                # Normalize the hyperlink path and check if it is relative
-                                normalized_path = abs_path.replace("\\", "/").strip()  # Normalize path to use forward slashes
-                                if not normalized_path.startswith("maps/"):
-                                    hyperlinks_fixed = False
+                                # Normalize the hyperlink path
+                                normalized_path = abs_path.replace("\\", "/").strip()
 
-                                # Collect a sample of the first 5 hyperlinks (normalized for consistency)
-                                if len(sample_hyperlinks) < 5:
-                                    sample_hyperlinks.append(normalized_path)
+                                # Check if the hyperlink is relative
+                                if normalized_path.startswith("maps/"):
+                                    hyperlinks_fixed = True  # Mark as fixed if all hyperlinks are relative
+                                else:
+                                    hyperlinks_fixed = False  # Mark as not fixed if any absolute hyperlink is found
 
-                # If no hyperlinks are found, mark as "No" and add a note
-                if not has_hyperlinks:
-                    hyperlinks_fixed = False
-                    sample_hyperlinks.append("No hyperlinks found")
+                                # Collect all hyperlinks (normalized for consistency)
+                                sample_hyperlinks.append(normalized_path)
 
-                # Add the results to the report
-                report_ws.append([
-                    parent_folder_name,
-                    workbook_name,
-                    "Yes" if maps_folder_exists else "No",
-                    "Yes" if hyperlinks_fixed else "No",
-                    ", ".join(sample_hyperlinks)
-                ])
+                    # Add the results to the report
+                    report_ws.append([
+                        parent_folder_name,
+                        workbook_name,
+                        sheet,  # Add the sheet name to the report
+                        status_run_by_date,  # Add the "Status Run By / Date" value
+                        "Yes" if maps_folder_exists else "No",
+                        "Yes" if hyperlinks_fixed else "No",
+                        ", ".join(sample_hyperlinks)  # Record all hyperlinks in the sample column
+                    ])
 
     # Save the report in the base directory
     report_name = os.path.basename(base_directory) + "_report.xlsx"
     report_path = os.path.join(base_directory, report_name)
+
     try:
         report_wb.save(report_path)
         print(f"Report saved successfully: {report_path}")
@@ -102,14 +132,15 @@ def generate_hyperlink_report():
         print(f"Error saving report: {e}")
 
     print("Hyperlink quality check completed.")
-    
-    # # Add this at the end of the script after saving the report
-    # report_folder = os.path.dirname(report_path)  # Get the folder containing the report
-    # try:
-    #     print(f"Opening folder containing the report: {report_folder}")
-    #     os.startfile(report_folder)  # Automatically open the folder in File Explorer (Windows)
-    # except Exception as e:
-    #     print(f"Error opening folder: {e}")
+
+    # Open the report file automatically
+    try:
+        # Normalize the path to ensure compatibility with Windows
+        normalized_report_path = os.path.normpath(report_path)
+        print(f"Opening report: {normalized_report_path}")
+        os.startfile(normalized_report_path)  # Automatically open the report file in Excel
+    except Exception as e:
+        print(f"Error opening report: {e}")
 
 # Example usage
 if __name__ == "__main__":
