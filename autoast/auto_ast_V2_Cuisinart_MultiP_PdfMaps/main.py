@@ -27,7 +27,7 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'may20_hyperlinks.xlsx'
+excel_file = 'jobs.xlsx'  # The name of the excel file containing the jobs to be processed
 
 
 
