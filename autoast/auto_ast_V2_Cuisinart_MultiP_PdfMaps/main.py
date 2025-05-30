@@ -27,7 +27,7 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file = 'jobs.xlsx'  # The name of the excel file containing the jobs to be processed
+excel_file = r'\\spatialfiles.bcgov\work\srm\gss\projects\gr_2025_82_windfarms\work\data\windfarm_shapefiles\jobs.xlsx'  # The name of the excel file containing the jobs to be processed
 
 
 

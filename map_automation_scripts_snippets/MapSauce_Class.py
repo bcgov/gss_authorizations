@@ -30,6 +30,9 @@ dir_path = os.path.join(r"\\spatialfiles2.bcgov\archive\FOR\RNI\DMK\Library\ExA_
 
 class MapInfo:
     def __init__ (self, map_name, map_frame, layout, permit_string, dir_path):
+        '''
+        Initiallize the attributes of the MapInfo class.
+        '''
         self.map_name = map_name
         self.map_frame = map_frame
         self.layout = layout
@@ -67,7 +70,7 @@ class MapInfo:
 
         
     def round_scale(self):
-        '''This function will round the scale of the map frame to the nearest 10,000'''
+        '''This function will round th e scale of the map frame to the nearest 10,000'''
         map_obj = aprx.listMaps(self.map_name)[0]
         
         # Next, find the layout object by name

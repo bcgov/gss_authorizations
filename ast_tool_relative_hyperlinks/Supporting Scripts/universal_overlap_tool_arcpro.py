@@ -36,7 +36,6 @@ Modification:
 '----------------------------------------------------------------------------------'
 
 ''' 
-from json import load
 import sys, os, time, datetime, arcpy, csv, runpy, shutil
 from pathlib import Path
 import openpyxl
@@ -47,25 +46,6 @@ from openpyxl import Workbook
 from openpyxl.styles import Alignment
 from openpyxl.styles import PatternFill
 from openpyxl.styles import Border, Side
-from dotenv import load_dotenv
-
-
-
-
-#NOTE imported the dotenv secrets
-# Get the secret file containing the database credentials
-SECRET_FILE = os.getenv('SECRET_FILE')
-
-# If secret file found, load the secret file and display a print message, if not found display an error message
-if SECRET_FILE:
-    load_dotenv(SECRET_FILE)
-    print(f"Inside UOT....Secret file {SECRET_FILE} found")
-    
-    #EDIT added dotenv a second time
-    # Assign secret file data to variables    
-    username = os.getenv('BCGW_USER')
-    password = os.getenv('BCGW_PASS')
-    print("Inside UoT arcpro - BCGW_USER and BCGW_PASS loaded from")
 
 # from fc_to_html import HTMLGenerator
 
@@ -136,7 +116,7 @@ class revolt_tool(object):
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Batch Ast V2 - Universal Overlap Tool finished running')
+        arcpy.AddMessage('Universal Overlap Tool finished running')
 
         EndTime = time.perf_counter()
         TotalRunTimeStr = "Total Run Time is " + str(int(EndTime - StartTime))
@@ -403,7 +383,7 @@ class revolt_tool(object):
             username = os.getenv('username')
             tmpDir = r"T:\StatusMaps_" + username
             template = r"\\Giswhse.env.gov.bc.ca\whse_np\corp\script_whse\python\Utility_Misc\Ready\statusing_tools_arcpro\map_files\dev_template.aprx"
-            print("inside create_set_aprx - username: ", username)
+
             if not os.path.exists(tmpDir):
                 os.mkdir(tmpDir)
             counter = 0
@@ -464,7 +444,7 @@ class revolt_tool(object):
         Adds a label field to the created AOI to be used in writing labels on the maps.
         '''
         arcpy.AddMessage("======================================================================")
-        arcpy.AddMessage('Batch Ast V2 - Copying the AOI into the working .GDB')
+        arcpy.AddMessage('Copying the AOI into the working .GDB')
 
         # copy the input data shape to be the AOI.  If it's a point or line,  buffer it to be the AOI
         arcpy.AddMessage("    Creating the raw AOI ")
@@ -585,9 +565,7 @@ class revolt_tool(object):
         '''
         arcpy.AddMessage("======================================================================")
         arcpy.AddMessage('Clipping the input datasets to the AOI')
-        #NOTE explicitly set the workspace immediately before making feature layers from .sde files.
-        arcpy.env.workspace = self.sde_connection
-        arcpy.AddMessage(f"Workspace set to: {arcpy.env.workspace}")
+ 
         the_aoi = os.path.join(self.work_gdb, "aoi")
  
         # buffer the aoi at the values in the input spreadsheet, and set x[rpt_aoi_for_clip] field to the value to clip input data to
@@ -1209,23 +1187,20 @@ class revolt_tool(object):
             # write the summary field values on the xls
             map_name  = os.path.split(input_list_line[self.rpt_clipped_fc_name])[1] #what the map was saved as
             map_path = os.path.join(self.map_directory,map_name+ ".pdf")
-           #NOTE
-            ## Commented out
-            # path_resolve = str(Path(map_path).resolve())
             
-            #############################################
+            #NOTE Commented out this line
+            # path_resolve = str(Path(map_path).resolve())
             if os.path.exists(map_path):
                 my_cell = 'E' + str(self.newline)
                 
                 #NOTE Added this line
                 rel_path = os.path.relpath(map_path, start=self.work_directory)
                 
-                #NOTE
-                ## Added this line!!!
+                
+                #NOTE Added this line
                 self.sheet[my_cell].hyperlink = rel_path 
                 
-                #NOTE
-                # Commented out
+                #NOTE commented out
                 # self.sheet[my_cell].hyperlink = path_resolve 
                 self.sheet[my_cell].value= "View Map"
                 self.sheet[my_cell].font =  Font(color=colors.COLOR_INDEX[12],size=10,name='Arial')
