@@ -27,9 +27,9 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file_1 = 'excel_1.xlsx' # The name of the excel file containing the jobs to be processed
-excel_file_2 = 'excel_2.xlsx' # The name of the second excel file containing the jobs to be processed
-excel_file_3 = ''
+excel_file_1 = 'mat_excel_1.xlsx' # The name of the excel file containing the jobs to be processed
+excel_file_2 = 'mat_excel_2.xlsx' # The name of the second excel file containing the jobs to be processed
+excel_file_3 = 'mat_excel_3.xlsx' # The name of the third excel file containing the jobs to be processed
 excel_file_4 = ''
 
 
@@ -149,3 +149,38 @@ if __name__ == '__main__':
     logger.info("Main: AST Factory Excel File 2 COMPLETE")
 
 
+## Start Excel File 3
+    
+    print("Main: Creating queuefile path for Excel File 3")
+    logger.info("Main: Creating queuefile path for Excel File 3")   
+    
+    current_path = os.path.dirname(os.path.realpath(__file__))
+    qf = os.path.join(current_path, excel_file_3)
+
+    # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
+    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
+
+    if not os.path.exists(qf):
+        print("Main: Queuefile not found, creating new queuefile")
+        logger.info("Main: Queuefile not found, creating new queuefile")
+        ast.create_new_queuefile()
+        
+    # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
+    print("Main: Loading jobs from Excel File 3")
+    logger.info("Main: Loading jobs from Excel File 3")   
+    jobs = ast.load_jobs()
+    
+    print("Main: Batching jobs for Excel File 3")
+    logger.info("Main: Batching jobs for Excel File 3")
+    ast.batch_ast()
+    
+    print("Main: Reloading failed jobs for Excel File 3")
+    logger.info("Main: Reloading failed jobs for Excel File 3")
+    ast.re_load_failed_jobs_V2()
+    
+    print("Main: Re-batching failed jobs for Excel File 3")
+    logger.info("Main: Re-batching failed jobs for Excel File 3")
+    ast.batch_ast()
+    
+    print("Main: AST Factory Excel File 3 COMPLETE")
+    logger.info("Main: AST Factory Excel File 3 COMPLETE")
