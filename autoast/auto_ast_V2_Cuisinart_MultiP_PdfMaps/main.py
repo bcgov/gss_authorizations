@@ -27,12 +27,58 @@ from ast_factory import AST_FACTORY
 
 
 ## *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_file_1 = 'mat_excel_1.xlsx' # The name of the excel file containing the jobs to be processed
-excel_file_2 = 'mat_excel_2.xlsx' # The name of the second excel file containing the jobs to be processed
-excel_file_3 = 'mat_excel_3.xlsx' # The name of the third excel file containing the jobs to be processed
-excel_file_4 = ''
+excel_files = [
+    'mat_excel_1.xlsx',  # The name of the first Excel file containing jobs
+    'mat_excel_2.xlsx',
+    'mat_excel_3.xlsx'
+]
 
 
+
+
+def process_excel_file(excel_file, secrets, logger, current_path):
+        
+    try:
+        print(f"Main: Creating queuefile path for {excel_file}")
+        logger.info(f"Main: Creating queuefile path for {excel_file}")
+
+        qf = os.path.join(current_path, excel_file)
+
+        # Create an instance of the AST_FACTORY class
+        ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
+
+        if not os.path.exists(qf):
+            print(f"Main: Queuefile for {excel_file} not found, creating new queuefile")
+            logger.info(f"Main: Queuefile for {excel_file} not found, creating new queuefile")
+            ast.create_new_queuefile()
+
+        # Load jobs from the Excel file
+        print(f"Main: Loading jobs from {excel_file}")
+        logger.info(f"Main: Loading jobs from {excel_file}")
+        jobs = ast.load_jobs()
+
+        # Batch jobs
+        print(f"Main: Batching jobs for {excel_file}")
+        logger.info(f"Main: Batching jobs for {excel_file}")
+        ast.batch_ast()
+
+        # Reload failed jobs
+        print(f"Main: Reloading failed jobs for {excel_file}")
+        logger.info(f"Main: Reloading failed jobs for {excel_file}")
+        ast.re_load_failed_jobs_V2()
+
+        # Re-batch failed jobs
+        print(f"Main: Re-batching failed jobs for {excel_file}")
+        logger.info(f"Main: Re-batching failed jobs for {excel_file}")
+        ast.batch_ast()
+
+        print(f"Main: AST Factory for {excel_file} COMPLETE")
+        logger.info(f"Main: AST Factory for {excel_file} COMPLETE")
+    
+    
+    except Exception as e:
+        print(f"Error processing {excel_file}: {e}")
+        logger.error(f"Error processing {excel_file}: {e}")
 
 #################################################################################################################################################################################
 if __name__ == '__main__':
@@ -46,6 +92,8 @@ if __name__ == '__main__':
 
     # Call the import_ast function to import the AST toolbox
     template = import_ast(logger)
+    
+    current_path = os.path.dirname(os.path.realpath(__file__))
 
     # Call the setup_bcgw function to set up the database connection
     # secrets = setup_bcgw(logger)
@@ -56,131 +104,89 @@ if __name__ == '__main__':
     os.environ["SDE_FILE_PATH"] = sde_path
     logger.info(f"SDE Connection established at: {sde_path}")
     
-    # START EXCEL FILE 1
+    # Process each Excel file
+    for excel_file in excel_files:
+        process_excel_file(excel_file, secrets, logger, current_path)
     
+    
+    #######################################################################################################
+    # START EXCEL FILE 1
+    ######################################################################################################
     #NOTE if this test works, the following could be wrapped in a function
     # Create the path for the queuefile
-    print("Main: Creating queuefile path for Excel File 1")
-    logger.info("Main: Creating queuefile path for Excel File 1")   
     
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    qf = os.path.join(current_path, excel_file_1)
+    
+    
+    
+# #     ## Start Excel File 2
+    
+#     print("Main: Creating queuefile path for Excel File 2")
+#     logger.info("Main: Creating queuefile path for Excel File 2")   
+    
+#     current_path = os.path.dirname(os.path.realpath(__file__))
+#     qf = os.path.join(current_path, excel_file_2)
 
-    #qf_1 = os.path.join(current_path, excel_file_1)
-    
-    # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
-    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
-    
-    #ast_1 = AST_FACTORY(qf_1, secrets[0], secrets[1], logger, current_path)
+#     # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
+#     ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
 
-    if not os.path.exists(qf):
-        print("Main: Queuefile not found, creating new queuefile")
-        logger.info("Main: Queuefile not found, creating new queuefile")
-        ast.create_new_queuefile()
-    
-    # if not os.path.exists(qf_1):
-    #     print("Main: Queuefile_1 not found, creating new queuefile")
-    #     logger.info("Main: Queuefile_1 not found, creating new queuefile")
-    #     ast.create_new_queuefile()
+#     if not os.path.exists(qf):
+#         print("Main: Queuefile not found, creating new queuefile")
+#         logger.info("Main: Queuefile not found, creating new queuefile")
+#         ast.create_new_queuefile()
         
-    # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
-    print("Main: Loading jobs from Excel File 1")
-    logger.info("Main: Loading jobs from Excel File 1")   
-    jobs = ast.load_jobs()
+#     # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
+#     print("Main: Loading jobs from Excel File 2")
+#     logger.info("Main: Loading jobs from Excel File 2")   
+#     jobs = ast.load_jobs()
     
-    #jobs = ast_1.load_jobs()
+#     print("Main: Batching jobs for Excel File 2")
+#     logger.info("Main: Batching jobs for Excel File 2")
+#     ast.batch_ast()
     
-    print("Main: Batching jobs for Excel File 1")
-    logger.info("Main: Batching jobs for Excel File 1")
-    ast.batch_ast()
+#     print("Main: Reloading failed jobs for Excel File 2")
+#     logger.info("Main: Reloading failed jobs for Excel File 2")
+#     ast.re_load_failed_jobs_V2()
     
-    #ast_1.batch_ast()
+#     print("Main: Re-batching failed jobs for Excel File 2")
+#     logger.info("Main: Re-batching failed jobs for Excel File 2")
+#     ast.batch_ast()
     
-    print("Main: Reloading failed jobs for Excel File 1")
-    logger.info("Main: Reloading failed jobs for Excel File 1")
-    ast.re_load_failed_jobs_V2()
-    
-    #ast_1.re_load_failed_jobs_V2()
-    
-    print("Main: Re-batching failed jobs for Excel File 1")
-    logger.info("Main: Re-batching failed jobs for Excel File 1")
-    ast.batch_ast()
-    
-    #ast_1.batch_ast()
-    
-    print("Main: AST Factory Excel File 1 COMPLETE")
-    logger.info("Main: AST Factory Excel File 1 COMPLETE")
-    
-    
-    ## Start Excel File 2
-    
-    print("Main: Creating queuefile path for Excel File 2")
-    logger.info("Main: Creating queuefile path for Excel File 2")   
-    
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    qf = os.path.join(current_path, excel_file_2)
+#     print("Main: AST Factory Excel File 2 COMPLETE")
+#     logger.info("Main: AST Factory Excel File 2 COMPLETE")
 
-    # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
-    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
 
-    if not os.path.exists(qf):
-        print("Main: Queuefile not found, creating new queuefile")
-        logger.info("Main: Queuefile not found, creating new queuefile")
-        ast.create_new_queuefile()
+# # ## Start Excel File 3
+    
+# #     print("Main: Creating queuefile path for Excel File 3")
+# #     logger.info("Main: Creating queuefile path for Excel File 3")   
+    
+#     current_path = os.path.dirname(os.path.realpath(__file__))
+#     qf = os.path.join(current_path, excel_file_3)
+
+#     # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
+#     ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
+
+#     if not os.path.exists(qf):
+#         print("Main: Queuefile not found, creating new queuefile")
+#         logger.info("Main: Queuefile not found, creating new queuefile")
+#         ast.create_new_queuefile()
         
-    # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
-    print("Main: Loading jobs from Excel File 2")
-    logger.info("Main: Loading jobs from Excel File 2")   
-    jobs = ast.load_jobs()
+#     # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
+#     print("Main: Loading jobs from Excel File 3")
+#     logger.info("Main: Loading jobs from Excel File 3")   
+#     jobs = ast.load_jobs()
     
-    print("Main: Batching jobs for Excel File 2")
-    logger.info("Main: Batching jobs for Excel File 2")
-    ast.batch_ast()
+#     print("Main: Batching jobs for Excel File 3")
+#     logger.info("Main: Batching jobs for Excel File 3")
+#     ast.batch_ast()
     
-    print("Main: Reloading failed jobs for Excel File 2")
-    logger.info("Main: Reloading failed jobs for Excel File 2")
-    ast.re_load_failed_jobs_V2()
+#     print("Main: Reloading failed jobs for Excel File 3")
+#     logger.info("Main: Reloading failed jobs for Excel File 3")
+#     ast.re_load_failed_jobs_V2()
     
-    print("Main: Re-batching failed jobs for Excel File 2")
-    logger.info("Main: Re-batching failed jobs for Excel File 2")
-    ast.batch_ast()
+#     print("Main: Re-batching failed jobs for Excel File 3")
+#     logger.info("Main: Re-batching failed jobs for Excel File 3")
+#     ast.batch_ast()
     
-    print("Main: AST Factory Excel File 2 COMPLETE")
-    logger.info("Main: AST Factory Excel File 2 COMPLETE")
-
-
-## Start Excel File 3
-    
-    print("Main: Creating queuefile path for Excel File 3")
-    logger.info("Main: Creating queuefile path for Excel File 3")   
-    
-    current_path = os.path.dirname(os.path.realpath(__file__))
-    qf = os.path.join(current_path, excel_file_3)
-
-    # Create an instance of the Ast Factory class, assign the queuefile path and the bcgw username and passwords to the instance
-    ast = AST_FACTORY(qf, secrets[0], secrets[1], logger, current_path)
-
-    if not os.path.exists(qf):
-        print("Main: Queuefile not found, creating new queuefile")
-        logger.info("Main: Queuefile not found, creating new queuefile")
-        ast.create_new_queuefile()
-        
-    # Load the jobs using the load_jobs method. This will scan the excel sheet and assign to "jobs" 
-    print("Main: Loading jobs from Excel File 3")
-    logger.info("Main: Loading jobs from Excel File 3")   
-    jobs = ast.load_jobs()
-    
-    print("Main: Batching jobs for Excel File 3")
-    logger.info("Main: Batching jobs for Excel File 3")
-    ast.batch_ast()
-    
-    print("Main: Reloading failed jobs for Excel File 3")
-    logger.info("Main: Reloading failed jobs for Excel File 3")
-    ast.re_load_failed_jobs_V2()
-    
-    print("Main: Re-batching failed jobs for Excel File 3")
-    logger.info("Main: Re-batching failed jobs for Excel File 3")
-    ast.batch_ast()
-    
-    print("Main: AST Factory Excel File 3 COMPLETE")
-    logger.info("Main: AST Factory Excel File 3 COMPLETE")
+#     print("Main: AST Factory Excel File 3 COMPLETE")
+#     logger.info("Main: AST Factory Excel File 3 COMPLETE")
