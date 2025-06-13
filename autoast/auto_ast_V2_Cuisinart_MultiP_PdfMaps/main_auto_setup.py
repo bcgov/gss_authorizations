@@ -27,7 +27,7 @@ from multi_excel_setup import create_job_excel_files
 # snippet to run multiple terminal windows & "P:\corp\python_ast\python.exe" "W:\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps\main.py"
 
 
-# Automatically creates the excel files in groups of 8 with a common region. 
+# Automatically creates the excel files in groups of 8 with a common region......
 
 
 
