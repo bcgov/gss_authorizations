@@ -1,21 +1,41 @@
+'''
+Folder Selection:
+Opens a window asking the user to choose a main directory where the input data is stored.
+
+Region Selection:
+Shows a dropdown menu asking the user to select a region (e.g., "Northeast", "Skeena", etc.).
+
+Find Shapefiles:
+The script goes through each subfolder inside the selected directory. If it finds a .shp (shapefile) inside a subfolder, it:
+
+Notes the shapefiles path
+Creates a matching output folder
+Writes an entry to an Excel sheet with default settings
+It adds up to 8 jobs per Excel workbook. If more than 8 shapefiles are found, it starts a new workbook.
+Each Excel file is saved in a folder called outputs within the selected main directory.'''
+
+
 import os
 from openpyxl import Workbook
 from tkinter import Tk, filedialog, Label, Button, StringVar, OptionMenu
 
-# Prompt user to select the main directory
-Tk().withdraw()  # Hide the root Tkinter window
-main_dir = filedialog.askdirectory(title="Select the main directory provided by the client")
+# Initialize Tkinter root window
+root = Tk()
+root.withdraw()  # Hide the main window during file dialog
+
+# Prompt user to select the main directory that contains the shapefiles
+main_dir = filedialog.askdirectory(title="Select the main directory ")
 if not main_dir:
     print("No directory selected. Exiting.")
+    root.destroy()
     exit()
 print(f"Selected directory: {main_dir}")
 
-# Prompt user to select a region from a dropdown menu
-root = Tk()
+# Now show the root window again for the dropdown
+root.deiconify()
 print("Creating a dropdown menu for region selection...")
 root.title("Select Region")
 region_var = StringVar(root)
-print
 region_var.set("Northeast")  # Default region
 
 Label(root, text="Select a region:").pack(pady=10)
@@ -24,15 +44,16 @@ regions = [
     "South_Coast", "Thompson_Okanagan", "West_Coast", "Omineca"
 ]
 OptionMenu(root, region_var, *regions).pack(pady=10)
-print("confirming selection...")
+
 def confirm_selection():
-    root.destroy()
+    root.quit()  # Exit the mainloop
+    root.destroy()  # Close the window
 
 Button(root, text="Confirm", command=confirm_selection).pack(pady=10)
 root.mainloop()
 region = region_var.get()
-print("assigning region to var")
-print(f"Selected region: {region}")
+print("Selected region:", region)
+
 
 # Define paths for the output directory
 output_dir = os.path.join(main_dir, "outputs")
