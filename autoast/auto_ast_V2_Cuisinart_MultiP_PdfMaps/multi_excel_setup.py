@@ -61,8 +61,8 @@ os.makedirs(output_dir, exist_ok=True)
 print(f"Output directory created: {output_dir}")
 
 # Initialize job counter and workbook counter
-job_counter = 0
-workbook_counter = 1
+job_counter = 0 # a
+workbook_counter = 1 #A workbook is an excel sheet of jobs
 
 # Create the first workbook
 wb = Workbook()
@@ -120,9 +120,15 @@ for subfolder in os.listdir(main_dir):
             if job_counter == 8:
                 batch_excel_path = os.path.join(output_dir, f"jobs_{workbook_counter}.xlsx")
                 wb.save(batch_excel_path)
+                
+
                 print(f"Batch jobs template saved to: {batch_excel_path}")
                 workbook_counter += 1
                 job_counter = 0
+                
+
+                
+                
 
                 # Create a new workbook
                 wb = Workbook()
