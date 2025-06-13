@@ -1,6 +1,6 @@
 '''
 This script will prep a folder of shapefiles to be run through the batch tool. 
-Do to limitations with BCGW connections and multiprocessing, any excel file greater than 8 jobs MAY
+Due to limitations with BCGW connections and multiprocessing, any excel file greater than 8 jobs MAY
 cause an issue with the bcgw and too many connections. This script will break up your list of shapefiles
 intro excel files with a maximum of 8 jobs per file.
 
@@ -16,7 +16,15 @@ Notes the shapefiles path
 Creates a matching output folder
 Writes an entry to an Excel sheet with default settings
 It adds up to 8 jobs per Excel workbook. If more than 8 shapefiles are found, it starts a new workbook.
-Each Excel file is saved in a folder called outputs within the selected main directory.'''
+Each Excel file is saved in a folder called outputs within the selected main directory.
+
+
+
+
+*** Look in your Shapefiles directory for a folder called ouputs. This will contain your output directories and excel sheets
+which can then be entered into main.py
+
+'''
 
 
 import os

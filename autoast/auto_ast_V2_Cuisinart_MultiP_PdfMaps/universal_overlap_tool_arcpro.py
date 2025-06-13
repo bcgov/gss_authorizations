@@ -1209,22 +1209,21 @@ class revolt_tool(object):
             # write the summary field values on the xls
             map_name  = os.path.split(input_list_line[self.rpt_clipped_fc_name])[1] #what the map was saved as
             map_path = os.path.join(self.map_directory,map_name+ ".pdf")
-           #NOTE
-            ## Commented out
+           #NOTE HYPERLINKS Commented out this line
             # path_resolve = str(Path(map_path).resolve())
             
             #############################################
             if os.path.exists(map_path):
                 my_cell = 'E' + str(self.newline)
                 
-                #NOTE Added this line
+                #NOTE HYPERLINKS Added this line
                 rel_path = os.path.relpath(map_path, start=self.work_directory)
                 
-                #NOTE
+                #NOTE HYPERLINKS Added this Line
                 ## Added this line!!!
                 self.sheet[my_cell].hyperlink = rel_path 
                 
-                #NOTE
+                #NOTE HYPERLINKS COMMENTED OUT
                 # Commented out
                 # self.sheet[my_cell].hyperlink = path_resolve 
                 self.sheet[my_cell].value= "View Map"
