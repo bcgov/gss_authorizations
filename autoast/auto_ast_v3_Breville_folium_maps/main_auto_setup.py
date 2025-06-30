@@ -22,36 +22,22 @@ from logging_setup import setup_logging
 from database_connection import setup_bcgw
 from toolbox_import import import_ast
 from ast_factory import AST_FACTORY
-# from multi_excel_setup import create_job_excel_files
+from multi_excel_setup import create_job_excel_files
 
 # snippet to run multiple terminal windows & "P:\corp\python_ast\python.exe" "W:\srm\nel\Local\Geomatics\Workarea\csostad\GitHubAutoAST\gss_authorizations\autoast\auto_ast_v3_Breville_folium_maps\main.py"
 
 
-
-###################################################################################
-#
-#
-# This MAIN is for running through muiltiple excel files in a batch process
-#
-#
-###################################################################################
+# Automatically creates the excel files in groups of 8 with a common region......
 
 
 
-
-# *** INPUT YOUR EXCEL FILE NAME HERE ***
-excel_files = [
-    '1.xlsx',  # The name of the first Excel file containing jobs
-    '2.xlsx',
-    '3.xlsx'
-]
 
 
 # Mandatory function that feeds the list of excel files into the Toaster
 def process_excel_file(excel_file, secrets, logger, current_path):
     '''
     This function takes a list of excel files and iterates over that list, applying the Batch AST Class (and hence the ast tool)
-    to each row in each excel file. This is a workaround for multiprocessing issue with the BCGW sees too many db connections
+    too each row in each excel file. This is a workaround for multiprocessing issue with the BCGW sees too many db connections
     in batches of 8 
     
     '''
@@ -127,13 +113,13 @@ if __name__ == '__main__':
     # Uncomment the following lines to create job excel files if needed
     
     
-    # print("Main: Running 'Create job excel files'")
-    # excel_files = create_job_excel_files()
-    # print(f"List of excel file paths is: {excel_files}")
-    # logger.info(f"List of excel file paths is: {excel_files}")          
+    print("Main: Running 'Create job excel files'")
+    excel_files = create_job_excel_files()
+    print(f"List of excel file paths is: {excel_files}")
+    logger.info(f"List of excel file paths is: {excel_files}")          
     
     
-    # Process each  of the  Excel files listed at the top of this scrip
+    # Process each Excel file
     for excel_file in excel_files:
         process_excel_file(excel_file, secrets, logger, current_path)
     
