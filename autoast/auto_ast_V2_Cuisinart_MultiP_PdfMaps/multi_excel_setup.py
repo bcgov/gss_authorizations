@@ -16,7 +16,9 @@ Notes the shapefiles path
 Creates a matching output folder
 Writes an entry to an Excel sheet with default settings
 It adds up to 8 jobs per Excel workbook. If more than 8 shapefiles are found, it starts a new workbook.
-Each Excel file is saved in a folder called outputs within the selected main directory.'''
+Each Excel file is saved in a folder called outputs within the selected main directory.
+
+'''
 
 
 import os
