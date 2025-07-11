@@ -41,9 +41,7 @@ from ast_factory import AST_FACTORY
 
 # *** INPUT YOUR EXCEL FILE NAME HERE ***
 excel_files = [
-    '1.xlsx',  # The name of the first Excel file containing jobs
-    '2.xlsx',
-    '3.xlsx'
+    'july_7.xlsx'
 ]
 
 

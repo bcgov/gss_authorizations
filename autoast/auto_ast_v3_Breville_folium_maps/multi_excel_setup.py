@@ -22,6 +22,7 @@ Each Excel file is saved in a folder called outputs within the selected main dir
 import os
 from openpyxl import Workbook
 from tkinter import Tk, filedialog, Label, Button, StringVar, OptionMenu
+from pathlib import path # When using Fiona in fc_to_html maps, cannot mix forward and back slashes in paths
 
 def create_job_excel_files():
     
@@ -49,32 +50,32 @@ def create_job_excel_files():
     
     # Read Shapefiles 
 
-    # # Create a dropdown menu for region selection
-    # root.deiconify()
-    # print("Creating a dropdown menu for region selection...")
-    # root.title("Select Region")
-    # region_var = StringVar(root)
-    # region_var.set("Northeast")  # Default region
+    # Create a dropdown menu for region selection
+    root.deiconify()
+    print("Creating a dropdown menu for region selection...")
+    root.title("Select Region")
+    region_var = StringVar(root)
+    region_var.set("Northeast")  # Default region
 
-    # Label(root, text="Select a region:").pack(pady=10)
+    Label(root, text="Select a region:").pack(pady=10)
     
-    # # The list of regions available for the dropdown menu
-    # regions = [
-    #     "Northeast", "Cariboo", "Kootenay_Boundary", "Skeena",
-    #     "South_Coast", "Thompson_Okanagan", "West_Coast", "Omineca"
-    # ]
+    # The list of regions available for the dropdown menu
+    regions = [
+        "Northeast", "Cariboo", "Kootenay_Boundary", "Skeena",
+        "South_Coast", "Thompson_Okanagan", "West_Coast", "Omineca"
+    ]
     
-    # # Some TKinter setup to create the dropdown menu
-    # OptionMenu(root, region_var, *regions).pack(pady=10)
+    # Some TKinter setup to create the dropdown menu
+    OptionMenu(root, region_var, *regions).pack(pady=10)
 
-    # def confirm_selection():
-    #     root.quit()
-    #     root.destroy()
+    def confirm_selection():
+        root.quit()
+        root.destroy()
 
-    # Button(root, text="Confirm", command=confirm_selection).pack(pady=10)
-    # root.mainloop()
-    # region = region_var.get()
-    # print("Selected region:", region)
+    Button(root, text="Confirm", command=confirm_selection).pack(pady=10)
+    root.mainloop()
+    region = region_var.get()
+    print("Selected region:", region)
 
     # Define paths for the output directory
     output_dir = os.path.join(main_dir, "outputs")
